@@ -6,15 +6,11 @@
 
 void client_request_list_tasks(uint16_t opcode ){
     int fd;
-    // FIFO file path
-    
     char * myfifo = "./requetes";
     fd=open(myfifo,O_WRONLY);
-    char * req=malloc(sizeof(uint16_t));
-    sprintf(req,"%u",opcode);
-    write(fd,req,sizeof(uint16_t));
+    write(fd,&opcode,sizeof(opcode));
     close(fd);
-    
+
 
 }
 
