@@ -1,5 +1,6 @@
 #include "../include/cassini.h"
-
+#include "../include/lib_client.h"
+#include "lib_client.c"
 const char usage_info[] = "\
    usage: cassini [OPTIONS] -l -> list all tasks\n\
       or: cassini [OPTIONS]    -> same\n\
@@ -49,6 +50,8 @@ int main(int argc, char * argv[]) {
       break;
     case 'l':
       operation = CLIENT_REQUEST_LIST_TASKS;
+      printf("%" PRIu16 "\n",operation);
+      client_request_list_tasks(operation);
       break;
     case 'c':
       operation = CLIENT_REQUEST_CREATE_TASK;
