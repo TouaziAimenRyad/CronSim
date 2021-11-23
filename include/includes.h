@@ -13,6 +13,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
+#include <endian.h>
 
 #endif /* INCLUDED_H */
