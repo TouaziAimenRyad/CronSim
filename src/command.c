@@ -100,10 +100,13 @@ uint32_t convert_char_to_uint32(char str [])
 }
 
 
-// uint6_t convert_char_to_uint64(char *str){
-// 
-// }
-// 
+uint64_t convert_char_to_uint64(char *str){
+uint64_t out;
+sscanf(str, "%" SCNu64, &out);
+return(out);
+}
+
+
 // 
 // uint32_t * convert_str_to_ARGV(char * str){
 // }
