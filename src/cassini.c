@@ -1,5 +1,6 @@
 #include "../include/cassini.h"
-
+#include "../include/lib_client.h"
+#include "lib_client.c"
 const char usage_info[] = "\
    usage: cassini [OPTIONS] -l -> list all tasks\n\
       or: cassini [OPTIONS]    -> same\n\
@@ -59,6 +60,7 @@ int main(int argc, char * argv[]) {
     case 'r':
       operation = CLIENT_REQUEST_REMOVE_TASK;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+      client_req_remove_task(operation,taskid);
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0') goto error;
       break;
     case 'x':
