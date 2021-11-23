@@ -7,8 +7,8 @@ struct command_line {
     
 };
 
-char * * getwords(char * str);
-uint32_t convert_str_to_uint32(char *str);
-uint32_t * convert_str_to_ARGV(char * str);
+// char * * getwords(char * str);
+uint32_t convert_char_to_uint32(char *str);
+uint32_t *convert_char_to_ARGV(char * str,uint32_t u, uint32_t *t);
 
 #endif /* COMMAND_H*/
