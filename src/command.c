@@ -79,7 +79,7 @@ void getwords(Chaine str){
 }*/
 
 
-uint16_t convert_char_to_uint16(const char *str){
+uint16_t convert_char_to_uint16( char *str){
   char *end;
   errno = 0;
   intmax_t val = strtoimax(str, &end, 10);
@@ -92,7 +92,7 @@ uint16_t convert_char_to_uint16(const char *str){
 
 
 
-uint32_t convert_char_to_uint32(char str []) 
+uint32_t convert_char_to_uint32(char *str) 
 {
 	uint32_t result = (str[0] << 24 | str[1] << 16 | str[2] << 8 | str[3]);
     return result;
@@ -100,13 +100,16 @@ uint32_t convert_char_to_uint32(char str [])
 }
 
 
-uint64_t convert_char_to_uint64(char *str){
-uint64_t out;
-sscanf(str, "%" SCNu64, &out);
-return(out);
+uint64_t convert_char_to_uint64(char *str)
+{
+   uint64_t out;
+   sscanf(str, "%" SCNu64, &out);
+   return(out);
 }
 
-
-// 
-// uint32_t * convert_str_to_ARGV(char * str){
-// }
+uint32_t *convert_char_to_ARGV(char * str,uint32_t u, uint32_t *t)
+{	
+	u = convert_char_to_uint32(str);
+	t = &u;
+    return(t);
+}
