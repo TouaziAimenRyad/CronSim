@@ -7,8 +7,10 @@
 void client_request_list_tasks(uint16_t opcode ){
     int fd;
     char * myfifo = "./requetes";
+    uint16_t opcode2=be16toh(opcode);
+
     fd=open(myfifo,O_WRONLY);
-    write(fd,&opcode,sizeof(opcode));
+    write(fd,&opcode2,sizeof(opcode2));
     close(fd);
 
 

@@ -14,5 +14,10 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <endian.h>
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> rversed op code fixed
 
 #endif /* INCLUDED_H */

@@ -50,7 +50,6 @@ int main(int argc, char * argv[]) {
       break;
     case 'l':
       operation = CLIENT_REQUEST_LIST_TASKS;
-      printf("%" PRIu16 "\n",operation);
       client_request_list_tasks(operation);
       break;
     case 'c':
