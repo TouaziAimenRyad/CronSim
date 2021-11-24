@@ -18,7 +18,8 @@ void client_request_list_tasks(uint16_t opcode ){
 
 
 
-struct TASK generate_task(uint64_t task_id, char * timing,char * command_line){  //takes the argument got from the cmd and then transform them into task
+struct TASK generate_task(uint64_t task_id, char * timing,char * *command_line){  //takes the argument got from the cmd and then transform them into task
+    
 
 
 }
