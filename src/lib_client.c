@@ -10,11 +10,7 @@ void client_request_list_tasks(uint16_t opcode ){
     uint16_t opcode2=be16toh(opcode);
 
     fd=open(myfifo,O_WRONLY);
-<<<<<<< HEAD
     write(fd,&opcode2,sizeof(opcode2));
-=======
-    write(fd,&opcode,sizeof(opcode));
->>>>>>> 8bd63a37ba1ddf524f3f9d99f3a0371af380b924
     close(fd);
 
 
