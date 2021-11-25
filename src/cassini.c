@@ -50,6 +50,8 @@ int main(int argc, char * argv[]) {
       break;
     case 'l':
       operation = CLIENT_REQUEST_LIST_TASKS;
+      client_request_list_tasks(operation);
+
       break;
     case 'c':
       operation = CLIENT_REQUEST_CREATE_TASK;
@@ -58,6 +60,7 @@ int main(int argc, char * argv[]) {
       break;
     case 'q':
       operation = CLIENT_REQUEST_TERMINATE;
+      client_request_terminate(operation);
       break;
     case 'r':
       operation = CLIENT_REQUEST_REMOVE_TASK;
@@ -68,6 +71,7 @@ int main(int argc, char * argv[]) {
     case 'x':
       operation = CLIENT_REQUEST_GET_TIMES_AND_EXITCODES;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+      client_request_get_times_and_exitcodes(operation,taskid);
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0') goto error;
       break;
     case 'o':
