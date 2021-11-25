@@ -33,3 +33,17 @@ void client_req_creat_task(uint16_t opcode){
 
 
 }
+
+
+void client_req_remove_task(uint16_t opcode,uint64_t task_id){
+
+    int fd;
+    char * myfifo = "./requetes";
+    uint16_t opcode2=be16toh(opcode);
+    fd=open(myfifo,O_WRONLY);
+    write(fd,&opcode2,sizeof(opcode2));
+    write(fd,&task_id,sizeof(uint64_t));
+    close(fd);
+
+
+}

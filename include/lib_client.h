@@ -9,6 +9,8 @@ struct TASK generate_task(uint64_t task_id, char * timing,char * command_line);
 
 void client_req_creat_task(uint16_t opcode);
 
+void client_req_remove_task(uint16_t opcode,uint64_t task_id);
+
 
 
 
