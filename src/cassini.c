@@ -53,6 +53,8 @@ int main(int argc, char * argv[]) {
       break;
     case 'c':
       operation = CLIENT_REQUEST_CREATE_TASK;
+      //struct task=generate_task();
+      client_req_creat_task(operation);
       break;
     case 'q':
       operation = CLIENT_REQUEST_TERMINATE;
