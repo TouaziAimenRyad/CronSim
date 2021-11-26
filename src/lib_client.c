@@ -1,6 +1,11 @@
 #include "../include/includes.h"
 #include "../include/lib_client.h"
 
+// struct TASK generate_task(uint64_t task_id, char *timing, char **command_line)
+// { //takes the argument got from the cmd and then transform them into task
+// }
+
+// List :
 void client_request_list_tasks(uint16_t opcode)
 {
     int fd;
@@ -12,9 +17,7 @@ void client_request_list_tasks(uint16_t opcode)
     close(fd);
 }
 
-// struct TASK generate_task(uint64_t task_id, char *timing, char **command_line)
-// { //takes the argument got from the cmd and then transform them into task
-// }
+// Creat :
 
 void client_req_creat_task(uint16_t opcode /*, struct TASK task*/)
 {
@@ -39,6 +42,8 @@ void client_req_creat_task(uint16_t opcode /*, struct TASK task*/)
     write(fd, &daysofweek, sizeof(daysofweek));
     close(fd);
 }
+
+// Remove
 
 void client_req_remove_task(uint16_t opcode, uint64_t task_id)
 {
@@ -79,6 +84,8 @@ void client_request_get_stderr(uint16_t opcode, u_int64_t task_id)
     write(fd, &task_id, sizeof(uint64_t));
 }
 
+// Terminate :
+
 void client_request_terminate(uint16_t opcode)
 {
     int fd;
@@ -88,6 +95,8 @@ void client_request_terminate(uint16_t opcode)
     write(fd, &opcode2, sizeof(opcode2));
     close(fd);
 }
+
+// Get_times_and_exitcodes :
 
 void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t taskid)
 {
