@@ -76,6 +76,7 @@ void client_req_remove_task(uint16_t opcode, uint64_t task_id)
     int fd;
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     uint16_t opc = be16toh(opcode);
+    uint64_t taskid=htobe64(task_id);
     fd = open(myfifo, O_WRONLY);
     if(fd==-1)
     {
@@ -83,18 +84,19 @@ void client_req_remove_task(uint16_t opcode, uint64_t task_id)
         exit(EXIT_FAILURE);
     }
     write(fd, &opc, sizeof(opc));
-    write(fd, &task_id, sizeof(uint64_t));
+    write(fd, &taskid, sizeof(uint64_t));
     close(fd);
 }
 
 // ('OUT') : STDOUT -- Cette fonction affichera la sortie standard de la dernière exécution de la tâche :
 
-void client_request_get_stdout(uint16_t opcode, u_int64_t task_id)
+void client_request_get_stdout(uint16_t opcode, uint64_t task_id)
 {
 
     int fd;
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     uint16_t opc = be16toh(opcode);
+    uint64_t taskid=htobe64(task_id);
     fd = open(myfifo, O_WRONLY);
     if(fd==-1)
     {
@@ -102,7 +104,7 @@ void client_request_get_stdout(uint16_t opcode, u_int64_t task_id)
         exit(EXIT_FAILURE);
     }
     write(fd, &opc, sizeof(opc));
-    write(fd, &task_id, sizeof(uint64_t));
+    write(fd, &taskid, sizeof(uint64_t));
 
     close(fd);
 }
@@ -110,11 +112,12 @@ void client_request_get_stdout(uint16_t opcode, u_int64_t task_id)
 // ('SE') : STDERR -- Cette fonction affichera la sortie erreur standard de la dernière exécution de
 // la tâche :
 
-void client_request_get_stderr(uint16_t opcode, u_int64_t task_id)
+void client_request_get_stderr(uint16_t opcode, uint64_t task_id)
 {
     int fd;
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     uint16_t opc = be16toh(opcode);
+    uint64_t taskid=htobe64(task_id);
     fd = open(myfifo, O_WRONLY);
     if(fd==-1)
     {
@@ -122,7 +125,7 @@ void client_request_get_stderr(uint16_t opcode, u_int64_t task_id)
         exit(EXIT_FAILURE);
     }
     write(fd, &opc, sizeof(opc));
-    write(fd, &task_id, sizeof(uint64_t));
+    write(fd, &taskid, sizeof(uint64_t));
 }
 
 // Terminate :
@@ -144,12 +147,12 @@ void client_request_terminate(uint16_t opcode)
 
 // Get_times_and_exitcodes :
 
-void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t taskid)
+void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
 {
     int fd;
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     uint16_t opcode2 = be16toh(opcode);
-    //uint64_t task_id= be64toh(taskid);
+    uint64_t taskid=htobe64(task_id);
     fd = open(myfifo, O_WRONLY);
     if(fd==-1)
     {
