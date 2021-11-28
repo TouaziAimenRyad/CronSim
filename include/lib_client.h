@@ -6,7 +6,7 @@
 
 void client_request_list_tasks(uint16_t opcode);
 
-void client_req_creat_task(uint16_t opcode);
+void client_req_creat_task(uint16_t opcode,char * min, char * hr,char * day ,char * command_line[],int argc);
 
 void client_req_remove_task(uint16_t opcode, uint64_t task_id);
 
