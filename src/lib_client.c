@@ -33,16 +33,16 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
     char *str=malloc(sizeof(uint32_t));
 
     uint16_t opcode2 = be16toh(opcode);
-     u_int32_t aux_argc = htobe32(  (u_int32_t) (argc-1) );
+     u_int32_t aux_argc = htobe32(  (u_int32_t) (argc) );
     
 
     if(timing_from_strings(&time,min,hr,day)==-1){
         perror("error while making time structure");
         exit(EXIT_FAILURE);
     };
-    u_int64_t minutes = le64toh(time.minutes);
-    u_int32_t hours = le32toh(time.hours);
-    u_int8_t daysofweek =le16toh(time.daysofweek);
+    uint64_t minutes = htobe64(time.minutes);
+    uint32_t hours =  htobe32(time.hours);
+    uint8_t daysofweek =(time.daysofweek);
 
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     fd = open(myfifo, O_WRONLY);
@@ -52,11 +52,11 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
         exit(EXIT_FAILURE);
     }
     write(fd, &opcode2, sizeof(opcode2));
-    write(fd, &aux_argc, sizeof(aux_argc));
     write(fd, &minutes, sizeof(minutes));
     write(fd, &hours, sizeof(hours));
     write(fd, &daysofweek, sizeof(daysofweek));
-    int size=0;
+    write(fd, &aux_argc, sizeof(aux_argc));
+    
    for (int i = 0; i < argc; i++)
     { 
          uint32_t aux_argv_len = htobe32((uint32_t) strlen(command_line[i]));
