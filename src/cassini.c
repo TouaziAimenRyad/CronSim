@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   char *hours_str = "*";
   char *daysofweek_str = "*";
   char *pipes_directory = NULL;
+  char *command_str;
 
   uint16_t operation = CLIENT_REQUEST_LIST_TASKS;
   uint64_t taskid;
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
     case 'c':
       operation = CLIENT_REQUEST_CREATE_TASK;
       //struct task=generate_task();
-      client_req_creat_task(operation);
+      //client_req_creat_task(operation,minutes_str,hours_str,daysofweek_str,command_str);
       break;
 
     case 'q':
@@ -115,6 +116,24 @@ int main(int argc, char *argv[])
     }
   }
 
+  if(operation == CLIENT_REQUEST_CREATE_TASK){
+    
+    char * cmd[argc-optind];
+    int j=0;
+    int i=optind;
+    while (i<=argc-1)
+    {
+      
+      cmd[j]=argv[i];
+      i++;
+      j++;
+    }
+    struct command_line command ;
+    client_req_creat_task(operation, minutes_str,hours_str,daysofweek_str,cmd,argc-optind);
+  
+    
+  }
+
   // --------
   // | TODO |
   // --------
@@ -128,3 +147,4 @@ error:
   pipes_directory = NULL;
   return EXIT_FAILURE;
 }
+

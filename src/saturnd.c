@@ -3,6 +3,7 @@
 #include "command.c"
 
 //TODO: make functions in lib_satrund.c for the treatment of req and replying with res
+//this saturnd.c was used for tests during our work 
 
 int main(int argc, char *argv[])
 {
@@ -14,8 +15,8 @@ int main(int argc, char *argv[])
     char *req_dy = malloc(sizeof(uint8_t));
     char *req_cmd = malloc(sizeof(uint32_t));
 
-    char *pathname_req = "./requetes";
-    char *pathname_res = "./reponse";
+    char *pathname_req = "./run/pipes/saturnd-request-pipe";
+    char *pathname_res = "./run/pipes/saturnd-response-pipe";
     if (mkfifo(pathname_req, 0777) == -1)
     {
         if (errno != EEXIST)
@@ -97,3 +98,4 @@ int main(int argc, char *argv[])
         }
     }
 }
+
