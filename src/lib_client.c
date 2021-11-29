@@ -169,14 +169,17 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     uint16_t opcode2 = be16toh(opcode);
     uint64_t taskid=htobe64(task_id);
+    void *content = malloc(sizeof(uint16_t)+sizeof(uint64_t));
+
+    *((uint16_t *)content) = opcode2;
+    *((uint64_t *)(content+sizeof(uint16_t))) = taskid;
     fd = open(myfifo, O_WRONLY);
     if(fd==-1)
     {
         perror("failed opening of request pipe");
         exit(EXIT_FAILURE);
     }
-    write(fd, &opcode2, sizeof(opcode2));
-    write(fd, &taskid, sizeof(uint64_t));
+    write(fd,content,sizeof(uint16_t)+sizeof(uint64_t));
     close(fd);
 }
 
