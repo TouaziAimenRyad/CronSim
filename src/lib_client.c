@@ -123,16 +123,25 @@ void client_request_get_stderr(uint16_t opcode, uint64_t task_id)
 {
     int fd;
     char *myfifo = "./run/pipes/saturnd-request-pipe";
-    uint16_t opc = be16toh(opcode);
+    uint16_t op = be16toh(opcode);
     uint64_t taskid=htobe64(task_id);
+
+
+    void *content = malloc(sizeof(uint16_t)+sizeof(uint64_t));
+
+    *((uint16_t *)content) = op;
+    *((uint64_t *)(content+16)) = taskid;
+
     fd = open(myfifo, O_WRONLY);
+
     if(fd==-1)
     {
         perror("failed opening of request pipe");
         exit(EXIT_FAILURE);
     }
-    write(fd, &opc, sizeof(opc));
-    write(fd, &taskid, sizeof(uint64_t));
+    
+    write(fd,content, sizeof(uint16_t)+sizeof(uint64_t));
+    close(fd);
 }
 
 // Terminate :
