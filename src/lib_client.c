@@ -6,20 +6,40 @@
 // { //takes the argument got from the cmd and then transform them into task
 // }
 
-// List :
+/**
+* Cette fonction envoie une requet du client au démon pour lui demander de ister toutes les tâches
+* @param opcode
+*
+*/
 void client_request_list_tasks(uint16_t opcode)
 {
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t et le task_id en uint64_t : */
     uint16_t opcode2 = be16toh(opcode);
 
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
+
+    /* Si l'ouverture échoue : */
     if(fd==-1)
     {
+    
+        /* Message d'erreur */
         perror("failed opening of request pipe");
+
+        /* On arrete notre programme */
         exit(EXIT_FAILURE);
     }
+
+    /* On écrit notre content dans notre fichier :  */
     write(fd, &opcode2, sizeof(opcode2));
+
+    /* On ferme nle descripteur */
     close(fd);
 }
 
@@ -93,78 +113,144 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
     close(fd);
 }
 
-// Remove
+/**
+* Cette fonction envoie une requete du client au démon pour lui demander de supprimer une tâche :
+* @param opcode
+* @param task_id
+*
+*/
 
 void client_req_remove_task(uint16_t opcode, uint64_t task_id)
 {
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+    
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t et le task_id en uint64_t : */
     uint16_t opc = be16toh(opcode);
     uint64_t taskid=htobe64(task_id);
+
+    /* Déclaration d'un pointeur générique : */
+    void *content = malloc(sizeof(uint16_t)+sizeof(uint64_t));
+
+    /* On met notre opc dans content ( 16 premiers uint avec le opcode), et à partir de 16 et pour 64 autres uint ( le task_id) */
+    *((uint16_t *)content) = opc;
+    *((uint64_t *)(content+sizeof(uint16_t))) = taskid;
+    
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
+
+    /* Si l'ouverture échoue : */
     if(fd==-1)
     {
-       perror("failed opening of request pipe");
+        /* Message d'erreur */
+        perror("failed opening of request pipe");
+
+        /* On arrete notre programme */
         exit(EXIT_FAILURE);
     }
-    write(fd, &opc, sizeof(opc));
-    write(fd, &taskid, sizeof(uint64_t));
+
+    /* On écrit notre content dans notre fichier :  */
+    write(fd,content, sizeof(uint16_t)+sizeof(uint64_t));
+    
+    /* On ferme nle descripteur */
     close(fd);
 }
 
-// ('OUT') : STDOUT -- Cette fonction affichera la sortie standard de la dernière exécution de la tâche :
+/**
+* Cette fonction envooe une requete du client au démon pour lui demander d'afficher 
+* la sortie standard de la dernière exécution de la tâche .
+* @param opcode
+* @param task_id
+*
+*/
 
 void client_request_get_stdout(uint16_t opcode, uint64_t task_id)
 {
-
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t et le task_id en uint64_t : */
     uint16_t opc = be16toh(opcode);
     uint64_t taskid=htobe64(task_id);
 
-
+    /* Déclaration d'un pointeur générique : */
     void *content = malloc(sizeof(uint16_t)+sizeof(uint64_t));
 
+    /* On met notre opc dans content ( 16 premiers uint avec le opcode), et à partir de 16 et pour 64 autres uint ( le task_id) */
     *((uint16_t *)content) = opc;
-    *((uint64_t *)(content+16)) = taskid;
+    *((uint64_t *)(content+sizeof(uint16_t))) = taskid;
 
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
+
+    /* Si l'ouverture échoue : */
 
     if(fd==-1)
     {
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+
+        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
     }
 
+    /* On écrit notre content dans notre fichier :  */
     write(fd,content, sizeof(uint16_t)+sizeof(uint64_t));
+
+    /* On ferme le descripteur :  */
     close(fd);
 }
 
-// ('SE') : STDERR -- Cette fonction affichera la sortie erreur standard de la dernière exécution de
-// la tâche :
+/** 
+* Cette fonction envoie une requet du client au démon pour lui demander d'afficher la sortie erreur
+* standard de la dernière exécution de la tâche :
+* @param opcode
+* @param task_id
+*
+*/
 
 void client_request_get_stderr(uint16_t opcode, uint64_t task_id)
-{
+{   
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t et le task_id en uint64_t : */
     uint16_t op = be16toh(opcode);
     uint64_t taskid=htobe64(task_id);
 
-
+    /* Déclaration d'un pointeur générique : */
     void *content = malloc(sizeof(uint16_t)+sizeof(uint64_t));
 
+    /* On met notre opc dans content ( 16 premiers uint avec le opcode), et à partir de 16 et pour 64 autres uint ( le task_id) */
     *((uint16_t *)content) = op;
-    *((uint64_t *)(content+16)) = taskid;
+    *((uint64_t *)(content+sizeof(uint16_t))) = taskid;
 
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
 
+    /* Si l'ouverture échoue : */
     if(fd==-1)
     {
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+
+        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
     }
     
+    /* On écrit notre content dans notre fichier :  */
     write(fd,content, sizeof(uint16_t)+sizeof(uint64_t));
+
+    /* On ferme le descipteur : */
     close(fd);
 }
 
