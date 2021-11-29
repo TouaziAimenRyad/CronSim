@@ -1,6 +1,7 @@
 #include "../include/includes.h"
 #include "../include/lib_client.h"
 
+
 // struct TASK generate_task(uint64_t task_id, char *timing, char **command_line)
 // { //takes the argument got from the cmd and then transform them into task
 // }
@@ -31,6 +32,9 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
     struct timing time;
     
     char *str=malloc(sizeof(uint32_t));
+    int size=sizeof(uint16_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)+sizeof(uint32_t)+argc*sizeof(uint32_t);
+    void * content=malloc(size);
+    int offset=0;
 
     uint16_t opcode2 = be16toh(opcode);
      u_int32_t aux_argc = htobe32(  (u_int32_t) (argc) );
@@ -51,20 +55,28 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
         perror("failed opening of request pipe");
         exit(EXIT_FAILURE);
     }
-    write(fd, &opcode2, sizeof(opcode2));
-    write(fd, &minutes, sizeof(minutes));
-    write(fd, &hours, sizeof(hours));
-    write(fd, &daysofweek, sizeof(daysofweek));
-    write(fd, &aux_argc, sizeof(aux_argc));
-    
+    *((uint16_t *)content)=opcode2;
+    offset=offset+sizeof(uint16_t);
+    *((uint64_t *)(content+offset))=minutes;
+    offset=offset+sizeof(uint64_t);
+    *((uint32_t *)(content+16+64))=hours;
+    offset=offset+sizeof(uint32_t);
+    *((uint8_t *)(content+16+64+32))=daysofweek;
+     offset=offset+sizeof(uint8_t);
+    *((uint32_t *)(content+offset+16+64+32+8))=aux_argc;
+    offset=offset+sizeof(uint32_t);
    for (int i = 0; i < argc; i++)
     { 
          uint32_t aux_argv_len = htobe32((uint32_t) strlen(command_line[i]));
-         write(fd, &aux_argv_len, sizeof(aux_argv_len));
-         write(fd, command_line[i], strlen(command_line[i]));
-        
+         *((uint32_t *)(content+offset))=aux_argv_len;
+         offset=offset+sizeof(uint32_t);
+         *((uint32_t *)(content+offset))=htobe32(convert_char_to_uint32(command_line[i]));
+         offset=offset+sizeof(uint32_t);
+         
     }
-   
+     
+    write(fd,content, sizeof(uint16_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)+sizeof(uint32_t)+argc*sizeof(uint32_t));
+
     
     close(fd);
 }
