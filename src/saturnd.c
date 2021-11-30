@@ -1,6 +1,5 @@
 #include "../include/saturnd.h"
-#include "../include/command.h"
-#include "command.c"
+
 
 //TODO: make functions in lib_satrund.c for the treatment of req and replying with res
 //this saturnd.c was used for tests during our work 
@@ -38,64 +37,22 @@ int main(int argc, char *argv[])
     {
 
         int fd_req = open(pathname_req, O_RDONLY);
+        int fd_res = open(pathname_res, O_WRONLY);
         read(fd_req, req_opcode, sizeof(uint16_t));
-        uint16_t opcode2 = convert_char_to_uint16(req_opcode);
+        uint16_t opcode2 = strtol(req_opcode,NULL,16);
         uint16_t opcode = htobe16(opcode2); //needs fixing
-        switch (opcode)
-        {
-        case (0x4c53):
+        uint16_t reply=be16toh(SERVER_REPLY_OK);
+        char* res=malloc(16);
+        sprintf(res,"%u",reply);
             close(fd_req);
-            printf("opcode = %s \n", req_opcode);
+            write(fd_res,&reply,sizeof(uint16_t));
+            printf("reply = %s \n", res);
             break;
 
-        case (0x524d):
-            read(fd_req, &req_task_id, sizeof(uint64_t));
-            close(fd_req);
-            printf("opcode = %s \n", req_opcode);
-            printf("taskid = %lu \n", req_task_id);
-            break;
 
-        case (0x5458):
-            read(fd_req, &req_task_id, sizeof(uint64_t));
-            close(fd_req);
-            printf("opcode = %s \n", req_opcode);
-            printf("taskid = %lu \n", req_task_id);
-            break;
 
-        case (0x544d):
-            close(fd_req);
-            printf("opcode = %s \n", req_opcode);
-            break;
-
-        case (0x4352):
-            read(fd_req, req_cmd, sizeof(uint32_t));
-            read(fd_req, req_min, sizeof(uint64_t));
-            read(fd_req, req_hr, sizeof(uint32_t));
-            read(fd_req, req_dy, sizeof(uint8_t));
-
-            close(fd_req);
-            //write(1,req,sizeof(uint16_t));
-            printf("opcode = %s \n", req_opcode);
-            printf("command = %s \n", req_cmd);
-            printf("miniut = %s \n", req_min);
-            printf("hour = %s \n", req_hr);
-            printf("day= %s \n", req_dy);
-            break;
-
-        case (0x534f):
-            read(fd_req, &req_task_id, sizeof(uint64_t));
-            close(fd_req);
-            printf("opcode = %s \n", req_opcode);
-            printf("taskid = %lu \n", req_task_id);
-            break;
-
-        case (0x5345):
-            read(fd_req, &req_task_id, sizeof(uint64_t));
-            close(fd_req);
-            printf("opcode = %s \n", req_opcode);
-            printf("taskid = %lu \n", req_task_id);
-            break;
-        }
+        
+        
     }
 }
 

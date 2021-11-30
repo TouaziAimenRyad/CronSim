@@ -18,4 +18,11 @@ void client_request_get_stdout(uint16_t opcode, uint64_t taskid);
 
 void client_request_get_stderr(uint16_t opcode, uint64_t taskid);
 
+
+//---------------------------------------response
+void client_get_res_create();
+void client_get_res_remove();
+void client_get_res_list();
+
+
 #endif

@@ -76,7 +76,10 @@ int main(int argc, char *argv[])
     case 'r':
       operation = CLIENT_REQUEST_REMOVE_TASK;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+      
       client_req_remove_task(operation, taskid);
+      client_get_res_remove();
+      
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
       break;
@@ -130,13 +133,15 @@ int main(int argc, char *argv[])
     }
     struct command_line command ;
     client_req_creat_task(operation, minutes_str,hours_str,daysofweek_str,cmd,argc-optind);
-  
+    client_get_res_create();
     
   }
+  
 
-  // --------
-  // | TODO |
-  // --------
+  
+
+
+
 
   return EXIT_SUCCESS;
 
