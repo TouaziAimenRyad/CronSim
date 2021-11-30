@@ -59,13 +59,16 @@ int main(int argc, char *argv[])
 
     case 'l':
       operation = CLIENT_REQUEST_LIST_TASKS;
+
       client_request_list_tasks(operation);
+      client_get_res_list();
+
       break;
 
     case 'c':
       operation = CLIENT_REQUEST_CREATE_TASK;
-      //struct task=generate_task();
-      //client_req_creat_task(operation,minutes_str,hours_str,daysofweek_str,command_str);
+      // struct task=generate_task();
+      // client_req_creat_task(operation,minutes_str,hours_str,daysofweek_str,command_str);
       break;
 
     case 'q':
@@ -76,7 +79,10 @@ int main(int argc, char *argv[])
     case 'r':
       operation = CLIENT_REQUEST_REMOVE_TASK;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+
       client_req_remove_task(operation, taskid);
+      client_get_res_remove();
+
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
       break;
@@ -84,7 +90,9 @@ int main(int argc, char *argv[])
     case 'x':
       operation = CLIENT_REQUEST_GET_TIMES_AND_EXITCODES;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+
       client_request_get_times_and_exitcodes(operation, taskid);
+
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
       break;
@@ -92,7 +100,9 @@ int main(int argc, char *argv[])
     case 'o':
       operation = CLIENT_REQUEST_GET_STDOUT;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+
       client_request_get_stdout(operation, taskid);
+      client_get_reply_stdout();
 
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
@@ -101,7 +111,10 @@ int main(int argc, char *argv[])
     case 'e':
       operation = CLIENT_REQUEST_GET_STDERR;
       taskid = strtoull(optarg, &strtoull_endp, 10);
+
       client_request_get_stderr(operation, taskid);
+      client_get_reply_stderr();
+
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
       break;
@@ -116,27 +129,23 @@ int main(int argc, char *argv[])
     }
   }
 
-  if(operation == CLIENT_REQUEST_CREATE_TASK){
-    
-    char * cmd[argc-optind];
-    int j=0;
-    int i=optind;
-    while (i<=argc-1)
+  if (operation == CLIENT_REQUEST_CREATE_TASK)
+  {
+
+    char *cmd[argc - optind];
+    int j = 0;
+    int i = optind;
+    while (i <= argc - 1)
     {
-      
-      cmd[j]=argv[i];
+
+      cmd[j] = argv[i];
       i++;
       j++;
     }
-    struct command_line command ;
-    client_req_creat_task(operation, minutes_str,hours_str,daysofweek_str,cmd,argc-optind);
-  
-    
+    struct command_line command;
+    client_req_creat_task(operation, minutes_str, hours_str, daysofweek_str, cmd, argc - optind);
+    client_get_res_create();
   }
-
-  // --------
-  // | TODO |
-  // --------
 
   return EXIT_SUCCESS;
 
@@ -147,4 +156,3 @@ error:
   pipes_directory = NULL;
   return EXIT_FAILURE;
 }
-
