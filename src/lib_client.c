@@ -108,9 +108,13 @@ void client_req_creat_task(uint16_t opcode ,char * min, char * hr,char * day ,ch
     }
      
     write(fd,content,size);
-
-    
     close(fd);
+    
+    client_get_res_create(opcode);
+
+
+
+
 }
 
 /**
@@ -293,3 +297,91 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
     close(fd);
 }
 
+
+//--------------------------------------------------------------------------recievinng res------------------------------------------------
+void client_get_res_create(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+  int size=sizeof(uint16_t)+sizeof(uint64_t);
+  void* res=malloc(size);
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,res,size);
+
+
+   
+    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_OK))
+    {
+        printf("%ld",*((uint64_t *)(res+16)));
+        exit(0);
+    }
+    
+    
+    close(fd_res);
+    
+}
+
+
+void client_get_res_remove(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+  int size=sizeof(uint16_t)+sizeof(uint16_t);
+  void* res=malloc(size);
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,res,size);
+
+
+   
+    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_ERROR))
+    {
+        printf("%d",*((uint16_t *)(res+16)));
+        exit(0);
+    }
+    
+    close(fd_res);
+    
+}
+
+
+void client_get_res_list(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+  int size=sizeof(uint16_t)+sizeof(uint16_t);
+  void* res=malloc(size);
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,res,size);
+
+
+   
+    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_ERROR))
+    {
+        printf("%d",*((uint16_t *)(res+16)));
+        exit(0);
+    }
+    
+    close(fd_res);
+    
+}
