@@ -151,7 +151,7 @@ void client_req_remove_task(uint16_t opcode, uint64_t task_id)
     /* On écrit notre content dans notre fichier :  */
     write(fd, content, sizeof(uint16_t) + sizeof(uint64_t));
 
-    /* On ferme nle descripteur */
+    /* On ferme     le descripteur */
     close(fd);
 }
 
@@ -294,6 +294,10 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
  *
  */
 
+// REPTYPE='OK' <uint16>, OUTPUT <string>
+// Qu'est ce que c'est ce output de type string!!!!!
+// À fixer plus tard :
+
 void client_get_reply_stdout()
 {
 
@@ -301,7 +305,7 @@ void client_get_reply_stdout()
     char *chemin = "./run/pipes/saturnd-reply-pipe";
 
     /* Pointeur générique : */
-    void *p = malloc(sizeof(uint16_t) + sizeof(uint64_t));
+    void *p = malloc(sizeof(uint16_t) + sizeof(uint32_t));
 
     /* On vérifie si l'allocation en mémoire a été faite correctement : */
     if (p == NULL)
@@ -324,17 +328,16 @@ void client_get_reply_stdout()
     }
 
     /* On va lire notre fichier : */
-    read(fd, p, sizeof(uint16_t) + sizeof(uint64_t));
+    read(fd, p, sizeof(uint16_t) + sizeof(uint32_t));
 
-    /* On vérifie si ce qu'on a lu de notre fichier de réponse correspand bien à ce qu'il doit
-    etre envoyé : */
+    /* Si ça renvoie une erreur */
     if (*((uint16_t *)p) == be16toh(SERVER_REPLY_ERROR))
     {
 
         /* On l'affiche : */
         printf("%d", *((uint16_t *)(p + sizeof(uint16_t))));
 
-        /* Arret correct du programme : */
+        /* Arret du programme : */
         exit(0);
     }
 
@@ -343,7 +346,7 @@ void client_get_reply_stdout()
 }
 
 /**
- * Cette fonction traite la réponse la requete stderr :
+ * Cette fonction traite la réponse du serveur à la requete stderr :
  *
  */
 
@@ -354,7 +357,7 @@ void client_get_reply_stderr()
     char *chemin = "./run/pipes/saturnd-reply-pipe";
 
     /* Pointeur générique : */
-    void *p = malloc(sizeof(uint16_t) + sizeof(uint64_t));
+    void *p = malloc(sizeof(uint16_t) + sizeof(uint16_t));
 
     /* On vérifie si l'allocation en mémoire a été faite correctement : */
     if (p == NULL)
@@ -377,25 +380,24 @@ void client_get_reply_stderr()
     }
 
     /* On va lire notre fichier : */
-    read(fd, p, sizeof(uint16_t) + sizeof(uint64_t));
+    read(fd, p, 2 * sizeof(uint16_t));
 
-    /* On vérifie si ce qu'on a lu de notre fichier de réponse correspand bien à ce qu'il doit etre envoyé : */
+    /* Si c'est une erreur */
     if (*((uint16_t *)p) == be16toh(SERVER_REPLY_ERROR))
     {
 
         /* On l'affiche : */
         printf("%d", *((uint16_t *)(p + sizeof(uint16_t))));
 
-        /* Arret correct du programme : */
+        /* Arret du programme : */
         exit(0);
     }
-
     // Fermeture du descripteur :
     close(fd);
 }
 
 /**
- * Cette fonction traite la réponse à la requete create :
+ * Cette fonction traite la réponse du serveur à la requete create :
  *
  */
 void client_get_res_create()
@@ -426,7 +428,7 @@ void client_get_res_create()
 }
 
 /**
- * Cette fonction traite la réponse à la requete remove :
+ * Cette fonction traite la réponse du serveur à la requete remove :
  *
  */
 
@@ -456,7 +458,7 @@ void client_get_res_remove()
 }
 
 /**
- * Cette fonction traite la réponse à la requete list :
+ * Cette fonction traite la réponse du serveur à la requete list :
  *
  */
 void client_get_res_list()
