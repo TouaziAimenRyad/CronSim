@@ -18,4 +18,9 @@ void client_request_get_stdout(uint16_t opcode, uint64_t taskid);
 
 void client_request_get_stderr(uint16_t opcode, uint64_t taskid);
 
+void demon_reply_get_stdout();
+
+void demon_reply_get_stderr();
+
+
 #endif

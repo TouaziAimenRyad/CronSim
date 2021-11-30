@@ -330,7 +330,8 @@ void demon_reply_stdout(){
     // On va lire notre fichier :
     read(fd,p,sizeof(uint16_t)+sizeof(uint64_t));
 
-    // On vérifie si la réponse est la meme :
+    // On vérifie si ce qu'on a lu de notre fichier de réponse correspand bien à ce qu'il doit
+    // etre envoyé :
     if(*(uint16_t *)p)==be16toh(SERVER_REPLY_ERROR)){
 
         // On l'affiche :
@@ -344,3 +345,55 @@ void demon_reply_stdout(){
     close(fd);
 
 }
+
+/**
+* Cette fonction traite la réponse du démon à la requete stderr :
+*
+*/
+
+void demon_reply_stderr(){
+
+    // On récupère la réponse du fichier saturnd-reply-pipe 
+    char *chemin="./run/pipes/saturnd-reply-pipe";
+
+    // Pointeur générique : 
+    void *p = malloc(sizeof(uint16_t)+sizeof(uint64_t));
+
+    // On vérifie si l'allocation en mémoire a été faite correctement : 
+    if(p == NULL){
+        exist(1);
+    }
+
+    // On ouvre le fichier de réponse :
+    int fd = open(chemin, O_RDONLY);
+
+    // Si la lecture échoute ( fichier inexistant ou autre ) : 
+    if(fd == -1){
+
+        // Affiche une erreur  :
+        perror("erreur");
+
+        // On arrete notre programme :
+        exit(EXIT_FAILURE);
+    }
+
+
+    // On va lire notre fichier :
+    read(fd,p,sizeof(uint16_t)+sizeof(uint64_t));
+
+    // On vérifie si ce qu'on a lu de notre fichier de réponse correspand bien à ce qu'il doit
+    // etre envoyé :
+    if(*(uint16_t *)p)==be16toh(SERVER_REPLY_ERROR)){
+
+        // On l'affiche :
+        printf("%d",*((uint16_t *)(p+sizeof(uint16_t))));
+
+        // Arret correct du programme :
+        exist(0);
+    }
+
+    // Fermeture du descripteur : 
+    close(fd);
+
+}
+
