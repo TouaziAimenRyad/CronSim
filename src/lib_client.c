@@ -294,10 +294,6 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
  *
  */
 
-// REPTYPE='OK' <uint16>, OUTPUT <string>
-// Qu'est ce que c'est ce output de type string!!!!!
-// À fixer plus tard :
-
 void client_get_reply_stdout()
 {
 
@@ -305,10 +301,10 @@ void client_get_reply_stdout()
     char *chemin = "./run/pipes/saturnd-reply-pipe";
 
     /* Pointeur générique : */
-    void *p = malloc(sizeof(uint16_t) + sizeof(uint32_t));
+    uint16_t *opcode = malloc(sizeof(uint16_t));
 
     /* On vérifie si l'allocation en mémoire a été faite correctement : */
-    if (p == NULL)
+    if (opcode == NULL)
     {
         exit(1);
     }
@@ -328,16 +324,28 @@ void client_get_reply_stdout()
     }
 
     /* On va lire notre fichier : */
-    read(fd, p, sizeof(uint16_t) + sizeof(uint32_t));
+    read(fd, opcode, sizeof(uint16_t));
 
-    /* Si ça renvoie une erreur */
-    if (*((uint16_t *)p) == be16toh(SERVER_REPLY_ERROR))
+    if (*opcode == SERVER_REPLY_ERROR)
     {
-
-        /* On l'affiche : */
-        printf("%d", *((uint16_t *)(p + sizeof(uint16_t))));
-
-        /* Arret du programme : */
+        uint16_t erreur_code;
+        read(fd, &erreur_code, sizeof(uint16_t));
+        erreur_code = be16toh(erreur_code);
+        if ((erreur_code == SERVER_REPLY_ERROR_NOT_FOUND) || (erreur_code == SERVER_REPLY_ERROR_NEVER_RUN))
+        {
+            printf("%x", erreur_code);
+            perror(" Erreur ! ");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        uint32_t size_output;
+        read(fd, &size_output, sizeof(uint32_t));
+        char *output = malloc(size_output * sizeof(char));
+        read(fd, output, size_output);
+        printf("%s", output);
+        free(output);
         exit(0);
     }
 
@@ -357,10 +365,10 @@ void client_get_reply_stderr()
     char *chemin = "./run/pipes/saturnd-reply-pipe";
 
     /* Pointeur générique : */
-    void *p = malloc(sizeof(uint16_t) + sizeof(uint16_t));
+    uint16_t *opcode = malloc(sizeof(uint16_t));
 
     /* On vérifie si l'allocation en mémoire a été faite correctement : */
-    if (p == NULL)
+    if (opcode == NULL)
     {
         exit(1);
     }
@@ -380,18 +388,31 @@ void client_get_reply_stderr()
     }
 
     /* On va lire notre fichier : */
-    read(fd, p, 2 * sizeof(uint16_t));
+    read(fd, opcode, 2 * sizeof(uint16_t));
 
-    /* Si c'est une erreur */
-    if (*((uint16_t *)p) == be16toh(SERVER_REPLY_ERROR))
+    if (*opcode == SERVER_REPLY_ERROR)
     {
-
-        /* On l'affiche : */
-        printf("%d", *((uint16_t *)(p + sizeof(uint16_t))));
-
-        /* Arret du programme : */
+        uint16_t erreur_code;
+        read(fd, &erreur_code, sizeof(uint16_t));
+        erreur_code = be16toh(erreur_code);
+        if ((erreur_code == SERVER_REPLY_ERROR_NOT_FOUND) || (erreur_code == SERVER_REPLY_ERROR_NEVER_RUN))
+        {
+            printf("%x", erreur_code);
+            perror(" Erreur ! ");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        uint32_t size_output;
+        read(fd, &size_output, sizeof(uint32_t));
+        char *output = malloc(size_output * sizeof(char));
+        read(fd, output, size_output);
+        printf("%s", output);
+        free(output);
         exit(0);
     }
+
     // Fermeture du descripteur :
     close(fd);
 }
@@ -400,6 +421,7 @@ void client_get_reply_stderr()
  * Cette fonction traite la réponse du serveur à la requete create :
  *
  */
+
 void client_get_res_create()
 {
 
