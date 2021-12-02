@@ -298,7 +298,84 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
 }
 
 
-//--------------------------------------------------------------------------recievinng res------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void client_get_res_create(){
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
   int size=sizeof(uint16_t)+sizeof(uint64_t);
@@ -395,34 +472,38 @@ void client_get_res_list(){
     {
         read(fd_res,&nbtask,sizeof(uint32_t));
         nbtask=be32toh(nbtask);
-        for (int i = 0; i < nbtask; i++)
+        if(nbtask>0)
         {
-            read(fd_res,&taskid,sizeof(uint64_t));
-            taskid=be64toh(taskid);
-            read(fd_res,&min,sizeof(uint64_t));
-            read(fd_res,&hr,sizeof(uint32_t));
-            read(fd_res,&dy,sizeof(uint8_t));
-            time->minutes=be64toh(min);
-            time->hours=be32toh(hr);
-            time->daysofweek=dy;
-
-            timing_string_from_timing(time_str,time);
-
-            sprintf(task_str,"%ld: %s",taskid,time_str);
-            read(fd_res,&argc,sizeof(uint32_t));
-            for(int j=0;j<be32toh(argc);j++)
+            for (int i = 0; i < nbtask; i++)
             {
-               read(fd_res,&arglen,sizeof(uint32_t));
-               arglen=be32toh(arglen);
-               char * argv=malloc(arglen*sizeof(uint8_t));
-               read(fd_res,argv,arglen*sizeof(uint8_t));
-               strcat(task_str," ");
-               strcat(task_str,argv);
-               
-               
-            }
+                read(fd_res,&taskid,sizeof(uint64_t));
+                taskid=be64toh(taskid);
+                read(fd_res,&min,sizeof(uint64_t));
+                read(fd_res,&hr,sizeof(uint32_t));
+                read(fd_res,&dy,sizeof(uint8_t));
+                time->minutes=be64toh(min);
+                time->hours=be32toh(hr);
+                time->daysofweek=dy;
 
-            printf("%s\n",task_str);
+                timing_string_from_timing(time_str,time);
+
+                sprintf(task_str,"%ld: %s",taskid,time_str);
+                read(fd_res,&argc,sizeof(uint32_t));
+                for(int j=0;j<be32toh(argc);j++)
+                {
+                   read(fd_res,&arglen,sizeof(uint32_t));
+                   arglen=be32toh(arglen);
+                   char * argv=malloc(arglen*sizeof(uint8_t));
+                   read(fd_res,argv,arglen*sizeof(uint8_t));
+                   strcat(task_str," ");
+                   strcat(task_str,argv);
+                   
+                   
+                }
+
+                printf("%s\n",task_str);
+
+            }
             
         }
         
