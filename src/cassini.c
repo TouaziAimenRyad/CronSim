@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     case 'l':
       operation = CLIENT_REQUEST_LIST_TASKS;
       client_request_list_tasks(operation);
+      client_get_res_list();
       break;
 
     case 'c':

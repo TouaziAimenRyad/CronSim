@@ -302,7 +302,8 @@ void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
 void client_get_res_create(){
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
   int size=sizeof(uint16_t)+sizeof(uint64_t);
-  void* res=malloc(size);
+  uint16_t restype;
+  uint64_t taskid;
   int fd_res = open(pathname_res, O_RDONLY);
    if(fd_res==-1)
     {
@@ -313,26 +314,29 @@ void client_get_res_create(){
         exit(EXIT_FAILURE);
     }
 
-    read(fd_res,res,size);
-
-
-   
-    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_OK))
+    read(fd_res,&restype,sizeof(uint16_t));
+    if (restype==be16toh(SERVER_REPLY_OK))
     {
-        printf("%ld",*((uint64_t *)(res+16)));
+        read(fd_res,&taskid,sizeof(uint64_t));
+        printf("%ld",be64toh(taskid));
         exit(0);
     }
     
-    
     close(fd_res);
+
+   
+    
+    
+    
+    
     
 }
 
 
 void client_get_res_remove(){
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-  int size=sizeof(uint16_t)+sizeof(uint16_t);
-  void* res=malloc(size);
+ uint16_t error;
+ uint16_t restype;
   int fd_res = open(pathname_res, O_RDONLY);
    if(fd_res==-1)
     {
@@ -343,25 +347,39 @@ void client_get_res_remove(){
         exit(EXIT_FAILURE);
     }
 
-    read(fd_res,res,size);
-
+    read(fd_res,&restype,sizeof(uint16_t));
+    close(fd_res);
 
    
-    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_ERROR))
+    if (restype==be16toh(SERVER_REPLY_ERROR))
     {
-        printf("%d",*((uint16_t *)(res+16)));
+        read(fd_res,&error,sizeof(uint16_t));
+        error=be16toh(error);
+        printf("%x",error);
         exit(0);
     }
     
-    close(fd_res);
+   
     
 }
 
 
 void client_get_res_list(){
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-  int size=sizeof(uint16_t)+sizeof(uint16_t);
-  void* res=malloc(size);
+  
+  int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
+  struct timing *time=malloc(size_timing);
+  char* time_str=malloc(size_timing);
+  char* task_str=malloc(sizeof(uint64_t)+size_timing);
+  uint64_t min;
+  uint32_t hr;
+  uint8_t dy;
+  uint16_t reptype;
+  uint32_t nbtask;
+  uint64_t taskid;
+  uint32_t argc;
+  uint32_t arglen;
+  
   int fd_res = open(pathname_res, O_RDONLY);
    if(fd_res==-1)
     {
@@ -372,16 +390,49 @@ void client_get_res_list(){
         exit(EXIT_FAILURE);
     }
 
-    read(fd_res,res,size);
-
-
-   
-    if (*((uint16_t *)res)==be16toh(SERVER_REPLY_ERROR))
+    read(fd_res,&reptype,sizeof(uint16_t));
+    if (reptype==be16toh(SERVER_REPLY_OK))
     {
-        printf("%d",*((uint16_t *)(res+16)));
-        exit(0);
+        read(fd_res,&nbtask,sizeof(uint32_t));
+        nbtask=be32toh(nbtask);
+        for (int i = 0; i < nbtask; i++)
+        {
+            read(fd_res,&taskid,sizeof(uint64_t));
+            taskid=be64toh(taskid);
+            read(fd_res,&min,sizeof(uint64_t));
+            read(fd_res,&hr,sizeof(uint32_t));
+            read(fd_res,&dy,sizeof(uint8_t));
+            time->minutes=be64toh(min);
+            time->hours=be32toh(hr);
+            time->daysofweek=dy;
+
+            timing_string_from_timing(time_str,time);
+
+            sprintf(task_str,"%ld: %s",taskid,time_str);
+            read(fd_res,&argc,sizeof(uint32_t));
+            for(int j=0;j<be32toh(argc);j++)
+            {
+               read(fd_res,&arglen,sizeof(uint32_t));
+               arglen=be32toh(arglen);
+               char * argv=malloc(arglen*sizeof(uint8_t));
+               read(fd_res,argv,arglen*sizeof(uint8_t));
+               strcat(task_str," ");
+               strcat(task_str,argv);
+               
+               
+            }
+
+            printf("%s\n",task_str);
+            
+        }
+        
+
+
     }
     
+   
+    
     close(fd_res);
+    exit(0);
     
 }
