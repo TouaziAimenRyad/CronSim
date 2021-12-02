@@ -425,28 +425,7 @@ void client_get_reply_stderr()
 void client_get_res_create()
 {
 
-    /* On récupère la réponse du fichier saturnd-reply-pipe  */
-    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-    int size = sizeof(uint16_t) + sizeof(uint64_t);
-    void *res = malloc(size);
-    int fd_res = open(pathname_res, O_RDONLY);
-    if (fd_res == -1)
-    {
-
-        perror("failed opening of request pipe");
-
-        exit(EXIT_FAILURE);
-    }
-
-    read(fd_res, res, size);
-
-    if (*((uint16_t *)res) == be16toh(SERVER_REPLY_OK))
-    {
-        printf("%ld", *((uint64_t *)(res + 16)));
-        exit(0);
-    }
-
-    close(fd_res);
+   
 }
 
 /**
@@ -456,27 +435,7 @@ void client_get_res_create()
 
 void client_get_res_remove()
 {
-    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-    int size = sizeof(uint16_t) + sizeof(uint16_t);
-    void *res = malloc(size);
-    int fd_res = open(pathname_res, O_RDONLY);
-    if (fd_res == -1)
-    {
-
-        perror("failed opening of request pipe");
-
-        exit(EXIT_FAILURE);
-    }
-
-    read(fd_res, res, size);
-
-    if (*((uint16_t *)res) == be16toh(SERVER_REPLY_ERROR))
-    {
-        printf("%d", *((uint16_t *)(res + 16)));
-        exit(0);
-    }
-
-    close(fd_res);
+   
 }
 
 /**
@@ -485,24 +444,5 @@ void client_get_res_remove()
  */
 void client_get_res_list()
 {
-    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-    int size = sizeof(uint16_t) + sizeof(uint16_t);
-    void *res = malloc(size);
-    int fd_res = open(pathname_res, O_RDONLY);
-    if (fd_res == -1)
-    {
-
-        perror("failed opening of request pipe");
-        exit(EXIT_FAILURE);
-    }
-
-    read(fd_res, res, size);
-
-    if (*((uint16_t *)res) == be16toh(SERVER_REPLY_ERROR))
-    {
-        printf("%d", *((uint16_t *)(res + 16)));
-        exit(0);
-    }
-
-    close(fd_res);
+    
 }
