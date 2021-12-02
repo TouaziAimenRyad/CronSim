@@ -417,32 +417,145 @@ void client_get_reply_stderr()
     close(fd);
 }
 
-/**
- * Cette fonction traite la réponse du serveur à la requete create :
- *
- */
 
-void client_get_res_create()
-{
+void client_get_res_create(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+  int size=sizeof(uint16_t)+sizeof(uint64_t);
+  uint16_t restype;
+  uint64_t taskid;
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,&restype,sizeof(uint16_t));
+    if (restype==be16toh(SERVER_REPLY_OK))
+    {
+        read(fd_res,&taskid,sizeof(uint64_t));
+        printf("%ld",be64toh(taskid));
+        exit(0);
+    }
+    
+    close(fd_res);
 
    
+    
+    
+    
+    
+    
 }
 
-/**
- * Cette fonction traite la réponse du serveur à la requete remove :
- *
- */
 
-void client_get_res_remove()
-{
+void client_get_res_remove(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+ uint16_t error;
+ uint16_t restype;
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,&restype,sizeof(uint16_t));
+    close(fd_res);
+
    
+    if (restype==be16toh(SERVER_REPLY_ERROR))
+    {
+        read(fd_res,&error,sizeof(uint16_t));
+        error=be16toh(error);
+        printf("%x",error);
+        exit(0);
+    }
+    
+   
+    
 }
 
-/**
- * Cette fonction traite la réponse du serveur à la requete list :
- *
- */
-void client_get_res_list()
-{
+
+void client_get_res_list(){
+  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+  
+  int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
+  struct timing *time=malloc(size_timing);
+  char* time_str=malloc(size_timing);
+  char* task_str=malloc(sizeof(uint64_t)+size_timing);
+  uint64_t min;
+  uint32_t hr;
+  uint8_t dy;
+  uint16_t reptype;
+  uint32_t nbtask;
+  uint64_t taskid;
+  uint32_t argc;
+  uint32_t arglen;
+  
+  int fd_res = open(pathname_res, O_RDONLY);
+   if(fd_res==-1)
+    {
+       
+        perror("failed opening of request pipe");
+
+       
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res,&reptype,sizeof(uint16_t));
+    if (reptype==be16toh(SERVER_REPLY_OK))
+    {
+        read(fd_res,&nbtask,sizeof(uint32_t));
+        nbtask=be32toh(nbtask);
+        if(nbtask>0)
+        {
+            for (int i = 0; i < nbtask; i++)
+            {
+                read(fd_res,&taskid,sizeof(uint64_t));
+                taskid=be64toh(taskid);
+                read(fd_res,&min,sizeof(uint64_t));
+                read(fd_res,&hr,sizeof(uint32_t));
+                read(fd_res,&dy,sizeof(uint8_t));
+                time->minutes=be64toh(min);
+                time->hours=be32toh(hr);
+                time->daysofweek=dy;
+
+                timing_string_from_timing(time_str,time);
+
+                sprintf(task_str,"%ld: %s",taskid,time_str);
+                read(fd_res,&argc,sizeof(uint32_t));
+                for(int j=0;j<be32toh(argc);j++)
+                {
+                   read(fd_res,&arglen,sizeof(uint32_t));
+                   arglen=be32toh(arglen);
+                   char * argv=malloc(arglen*sizeof(uint8_t));
+                   read(fd_res,argv,arglen*sizeof(uint8_t));
+                   strcat(task_str," ");
+                   strcat(task_str,argv);
+                   
+                   
+                }
+
+                printf("%s\n",task_str);
+
+            }
+            
+        }
+        
+
+
+    }
+    
+   
+    
+    close(fd_res);
+    exit(0);
     
 }
