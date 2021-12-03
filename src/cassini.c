@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
       taskid = strtoull(optarg, &strtoull_endp, 10);
 
       client_request_get_times_and_exitcodes(operation, taskid);
+      client_get_res_time_and_exitcodes();
 
       if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
         goto error;
