@@ -574,3 +574,62 @@ void client_get_res_terminate(){
 
 
 }
+void client_get_res_time_and_exitcodes()
+{
+    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+    void *reptype = malloc(sizeof(uint16_t));
+    uint32_t nb_run;
+    int64_t time;
+    uint16_t exitcode;
+    uint16_t errcode;
+
+    int fd_res = open(pathname_res, O_RDONLY);
+    if (fd_res == -1)
+    {
+
+        perror("failed opening of request pipe");
+        exit(EXIT_FAILURE);
+    }
+    read(fd_res,reptype,sizeof(uint16_t));
+     if (*((uint16_t *)reptype)== be16toh(SERVER_REPLY_OK))
+     {
+        read(fd_res, &nb_run, sizeof(uint32_t));
+        nb_run =(int) be32toh(nb_run);
+
+        for(int i=0;i<nb_run;i++)
+        {
+          read(fd_res, &time, sizeof(int64_t));
+          time = be64toh(time);
+
+          read(fd_res, &exitcode, sizeof(uint16_t));
+          exitcode = be16toh(exitcode);
+          
+          time = (time_t)time;
+          struct tm *timeInfo = localtime(&time);
+
+          if (timeInfo == NULL)
+          {
+            perror("failed reading of request pipe");
+            return 1;
+          }
+          printf("%02d-%02d-%02d %02d:%02d:%02d %d\n",
+                 timeInfo->tm_year + 1900, timeInfo->tm_mon + 1,
+                 timeInfo->tm_mday, timeInfo->tm_hour, timeInfo->tm_min,
+                 timeInfo->tm_sec, exitcode);
+
+          
+        }
+      }
+      else if(*((uint16_t *)reptype) == be16toh(SERVER_REPLY_ERROR))
+      {
+        read(fd_res, &errcode, sizeof(uint16_t));
+        if ((errcode == SERVER_REPLY_ERROR_NOT_FOUND))
+        {
+          printf("%u", errcode);
+          exit(1);
+        }
+        else
+          exit(1);
+      }
+
+      }

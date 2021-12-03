@@ -34,4 +34,6 @@ void client_get_reply_stderr();
 
 void client_get_res_terminate();
 
+void client_get_res_time_and_exitcodes();
+
 #endif
