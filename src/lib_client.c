@@ -559,3 +559,18 @@ void client_get_res_list(){
     exit(0);
     
 }
+void client_get_res_terminate(){
+    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+    void *res = malloc(sizeof(uint16_t));
+    int fd_res = open(pathname_res, O_RDONLY);
+    if (fd_res == -1)
+    {
+
+        perror("failed opening of request pipe");
+        exit(EXIT_FAILURE);
+    }
+
+    read(fd_res, res,sizeof(uint16_t));
+
+
+}

@@ -32,4 +32,6 @@ void client_get_reply_stdout();
 
 void client_get_reply_stderr();
 
+void client_get_res_terminate();
+
 #endif
