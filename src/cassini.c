@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     case 'q':
       operation = CLIENT_REQUEST_TERMINATE;
       client_request_terminate(operation);
+      client_get_res_terminate();
       break;
 
     case 'r':
