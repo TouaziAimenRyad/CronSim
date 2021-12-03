@@ -303,12 +303,6 @@ void client_get_reply_stdout()
     /* Pointeur générique : */
     uint16_t *opcode = malloc(sizeof(uint16_t));
 
-    /* On vérifie si l'allocation en mémoire a été faite correctement : */
-    if (opcode == NULL)
-    {
-        exit(1);
-    }
-
     /* On ouvre le fichier de réponse : */
     int fd = open(chemin, O_RDONLY);
 
@@ -316,17 +310,14 @@ void client_get_reply_stdout()
     if (fd == -1)
     {
 
-        /* Affiche une erreur  : */
         perror("erreur");
-
-        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
     }
 
     /* On va lire notre fichier : */
     read(fd, opcode, sizeof(uint16_t));
 
-    if (*opcode == SERVER_REPLY_ERROR)
+    if (*opcode == be16toh(SERVER_REPLY_ERROR))
     {
         uint16_t erreur_code;
         read(fd, &erreur_code, sizeof(uint16_t));
@@ -334,15 +325,15 @@ void client_get_reply_stdout()
         if ((erreur_code == SERVER_REPLY_ERROR_NOT_FOUND) || (erreur_code == SERVER_REPLY_ERROR_NEVER_RUN))
         {
             printf("%x", erreur_code);
-            perror(" Erreur ! ");
-            exit(EXIT_FAILURE);
+            exit(1);
         }
-    }
-    else
-    {
+         
+    } else {
+
         uint32_t size_output;
         read(fd, &size_output, sizeof(uint32_t));
-        char *output = malloc(size_output * sizeof(char));
+        size_output = be32toh(size_output);
+        char *output = malloc(size_output * sizeof(uint8_t));
         read(fd, output, size_output);
         printf("%s", output);
         free(output);
@@ -388,9 +379,9 @@ void client_get_reply_stderr()
     }
 
     /* On va lire notre fichier : */
-    read(fd, opcode, 2 * sizeof(uint16_t));
+    read(fd, opcode,sizeof(uint16_t));
 
-    if (*opcode == SERVER_REPLY_ERROR)
+    if (*opcode == be32toh(SERVER_REPLY_ERROR))
     {
         uint16_t erreur_code;
         read(fd, &erreur_code, sizeof(uint16_t));
@@ -405,8 +396,9 @@ void client_get_reply_stderr()
     else
     {
         uint32_t size_output;
-        read(fd, &size_output, sizeof(uint32_t));
-        char *output = malloc(size_output * sizeof(char));
+        read(fd, &size_output,sizeof(uint32_t));
+        size_output=be32toh(size_output);
+        char *output = malloc(size_output * sizeof(uint8_t));
         read(fd, output, size_output);
         printf("%s", output);
         free(output);
@@ -610,7 +602,7 @@ void client_get_res_time_and_exitcodes()
           if (timeInfo == NULL)
           {
             perror("failed reading of request pipe");
-            return 1;
+            exit(EXIT_FAILURE);
           }
           printf("%02d-%02d-%02d %02d:%02d:%02d %d\n",
                  timeInfo->tm_year + 1900, timeInfo->tm_mon + 1,
