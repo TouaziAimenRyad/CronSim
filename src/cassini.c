@@ -81,44 +81,48 @@ int main(int argc, char *argv[])
       operation = CLIENT_REQUEST_REMOVE_TASK;
       taskid = strtoull(optarg, &strtoull_endp, 10);
 
+      if (strtoull_endp == optarg || strtoull_endp[0] != '\0'){
+        goto error;
+      }
       client_req_remove_task(operation, taskid);
       client_get_res_remove();
 
-      if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
-        goto error;
       break;
 
     case 'x':
       operation = CLIENT_REQUEST_GET_TIMES_AND_EXITCODES;
       taskid = strtoull(optarg, &strtoull_endp, 10);
 
+      if (strtoull_endp == optarg || strtoull_endp[0] != '\0'){
+        goto error;
+      }
       client_request_get_times_and_exitcodes(operation, taskid);
       client_get_res_time_and_exitcodes();
 
-      if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
-        goto error;
       break;
 
     case 'o':
       operation = CLIENT_REQUEST_GET_STDOUT;
       taskid = strtoull(optarg, &strtoull_endp, 10);
-
+     
+      if (strtoull_endp == optarg || strtoull_endp[0] != '\0'){
+        goto error;
+      }
       client_request_get_stdout(operation, taskid);
       client_get_reply_stdout();
 
-      if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
-        goto error;
       break;
 
     case 'e':
       operation = CLIENT_REQUEST_GET_STDERR;
       taskid = strtoull(optarg, &strtoull_endp, 10);
 
+      if (strtoull_endp == optarg || strtoull_endp[0] != '\0'){
+        goto error;
+      }
       client_request_get_stderr(operation, taskid);
       client_get_reply_stderr();
 
-      if (strtoull_endp == optarg || strtoull_endp[0] != '\0')
-        goto error;
       break;
 
     case 'h':
@@ -144,7 +148,7 @@ int main(int argc, char *argv[])
       i++;
       j++;
     }
-    struct command_line command;
+    //struct command_line command;
     client_req_creat_task(operation, minutes_str, hours_str, daysofweek_str, cmd, argc - optind);
     client_get_res_create();
   }

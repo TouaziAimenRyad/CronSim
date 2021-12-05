@@ -251,41 +251,89 @@ void client_request_get_stderr(uint16_t opcode, uint64_t task_id)
 }
 
 // Terminate :
+/**
+ * Cette fonction envoie une requete du client au démon pour lui demander de terminer le demon:
+ * @param opcode
+ *
+ */
+
 
 void client_request_terminate(uint16_t opcode)
 {
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t  : */
     uint16_t opcode2 = be16toh(opcode);
+
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
+
+    /* Si l'ouverture échoue : */
     if (fd == -1)
     {
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+
+        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
     }
+    /* On écrit l'opcode dans notre fichier :  */
     write(fd, &opcode2, sizeof(opcode2));
+
+    /* On ferme le descipteur : */
     close(fd);
 }
 
 // Get_times_and_exitcodes :
 
+/**
+ * Cette fonction envoie une requete du client au démon pour lui demander le time et l'exitcode des taches :
+ *
+ * @param opcode
+ * @param task_id
+ *
+ */
+
 void client_request_get_times_and_exitcodes(uint16_t opcode, uint64_t task_id)
 {
+    /* Déclaration du descripteur de notre fichier : */
     int fd;
+
+    /* Création d'un pointeur myfifo vers un char " pipe "  */
     char *myfifo = "./run/pipes/saturnd-request-pipe";
+
+    /* Caster le opcode en uint16_t et le task_id en uint64_t : */
     uint16_t opcode2 = be16toh(opcode);
     uint64_t taskid = htobe64(task_id);
+
+    /* Déclaration d'un pointeur générique : */
     void *content = malloc(sizeof(uint16_t) + sizeof(uint64_t));
 
+    /* On met notre opc dans content ( 16 premiers uint avec le opcode), et à partir de 16 et pour 64 autres uint ( le task_id) */
     *((uint16_t *)content) = opcode2;
     *((uint64_t *)(content + sizeof(uint16_t))) = taskid;
+
+    /* On ouvre notre pipe en écriture :  */
     fd = open(myfifo, O_WRONLY);
+
+    /*Si l'ouverture echoue:*/
     if (fd == -1)
     {
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+
+        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
+
     }
+    /* On écrit l'opcode dans notre fichier :  */
     write(fd, content, sizeof(uint16_t) + sizeof(uint64_t));
+
+    /* On ferme le descipteur : */
     close(fd);
 }
 
@@ -309,12 +357,13 @@ void client_get_reply_stdout()
     /* Si la lecture échoute ( fichier inexistant ou autre ) : */
     if (fd == -1)
     {
-
+        /* Message d'erreur : */
         perror("erreur");
+        /* On arrete notre programme : */
         exit(EXIT_FAILURE);
     }
 
-    /* On va lire notre fichier : */
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd, opcode, sizeof(uint16_t));
 
     if (*opcode == be16toh(SERVER_REPLY_ERROR))
@@ -378,7 +427,7 @@ void client_get_reply_stderr()
         exit(EXIT_FAILURE);
     }
 
-    /* On va lire notre fichier : */
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd, opcode,sizeof(uint16_t));
 
     if (*opcode == be32toh(SERVER_REPLY_ERROR))
@@ -409,22 +458,32 @@ void client_get_reply_stderr()
     close(fd);
 }
 
-
+/**
+ * Cette fonction traite la réponse du serveur à la requete create :
+ *
+ */
 void client_get_res_create(){
+  /* On récupère la réponse du fichier saturnd-reply-pipe */
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-  int size=sizeof(uint16_t)+sizeof(uint64_t);
+
+  /* on déclare restype et taskid respectivement en uint16_t et uint64_t   */
   uint16_t restype;
   uint64_t taskid;
+
+  /* On ouvre le fichier de réponse en lecture : */
   int fd_res = open(pathname_res, O_RDONLY);
+
+  /* Si la lecture échoute ( fichier inexistant ou autre ) :  */
    if(fd_res==-1)
     {
-       
+        /* Message d'erreur  : */
         perror("failed opening of request pipe");
 
-       
+        /* on arrete le programme :*/
         exit(EXIT_FAILURE);
     }
 
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd_res,&restype,sizeof(uint16_t));
     if (restype==be16toh(SERVER_REPLY_OK))
     {
@@ -432,33 +491,36 @@ void client_get_res_create(){
         printf("%ld",be64toh(taskid));
         exit(0);
     }
-    
+    // Fermeture du descripteur :
     close(fd_res);
-
-   
-    
-    
-    
-    
     
 }
 
-
+/**
+ * Cette fonction traite la réponse du serveur à la requete remove :
+ *
+ */
 void client_get_res_remove(){
+  /* On récupère la réponse du fichier saturnd-reply-pipe */
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
- uint16_t error;
- uint16_t restype;
+  /* on déclare error et restype respectivement en uint16_t  */
+  uint16_t error;
+  uint16_t restype;
+  /* On ouvre le fichier de réponse en lecture : */
   int fd_res = open(pathname_res, O_RDONLY);
+   /* Si la lecture échoute ( fichier inexistant ou autre ) :  */
    if(fd_res==-1)
     {
-       
+        /* Message d'erreur  : */
         perror("failed opening of request pipe");
 
-       
+        /* on arrete le programme :*/
         exit(EXIT_FAILURE);
     }
-
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd_res,&restype,sizeof(uint16_t));
+
+    // Fermeture du descripteur :
     close(fd_res);
 
    
@@ -474,7 +536,10 @@ void client_get_res_remove(){
     
 }
 
-
+/**
+ * Cette fonction traite la réponse du serveur à la requete liste:
+ *
+ */
 void client_get_res_list(){
   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
   
@@ -551,37 +616,59 @@ void client_get_res_list(){
     exit(0);
     
 }
+/**
+ * Cette fonction traite la réponse du serveur à la requete terminate :
+ *
+ */
 void client_get_res_terminate(){
+    /* On récupère la réponse du fichier saturnd-reply-pipe */
     char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+
+    /* Pointeur generique pour lire la réponse "OK" */
     void *res = malloc(sizeof(uint16_t));
+
+    /* On ouvre le fichier de réponse en lecture : */
     int fd_res = open(pathname_res, O_RDONLY);
+    /* Si l'ouverture echoue : */
     if (fd_res == -1)
     {
-
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+
+        /* On arrete le programme  : */
         exit(EXIT_FAILURE);
     }
-
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd_res, res,sizeof(uint16_t));
+    // Fermeture du descripteur :
+    close(fd_res);
 
 
 }
+
 void client_get_res_time_and_exitcodes()
 {
+    /* On récupère la réponse du fichier saturnd-reply-pipe */
     char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+    /* Pointeur generique pour lire le reptype : */
     void *reptype = malloc(sizeof(uint16_t));
+
     uint32_t nb_run;
     int64_t time;
     uint16_t exitcode;
     uint16_t errcode;
-
+    /* On ouvre le fichier de réponse en lecture : */
     int fd_res = open(pathname_res, O_RDONLY);
+
+    /* Si l'ouverture echoue : */
     if (fd_res == -1)
     {
-
+        /* Message d'erreur : */
         perror("failed opening of request pipe");
+        /* On arrete le programme  : */
         exit(EXIT_FAILURE);
     }
+    /* On va lire notre fichier en respectant le protocole : */
     read(fd_res,reptype,sizeof(uint16_t));
      if (*((uint16_t *)reptype)== be16toh(SERVER_REPLY_OK))
      {
@@ -597,6 +684,10 @@ void client_get_res_time_and_exitcodes()
           exitcode = be16toh(exitcode);
           
           time = (time_t)time;
+          /* On utilise la fonction localtime pour transformer le timestamp  time (de type time_t )
+          * en une structure de type struct tm,et les informations stockées dans la structure sont 
+          * exprimée en fuseau horaire :
+          */
           struct tm *timeInfo = localtime(&time);
 
           if (timeInfo == NULL)
@@ -623,5 +714,7 @@ void client_get_res_time_and_exitcodes()
         else
           exit(1);
       }
+       // Fermeture du descripteur :
+       close(fd_res);
 
       }

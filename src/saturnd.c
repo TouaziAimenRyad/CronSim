@@ -1,7 +1,7 @@
 #include "../include/saturnd.h"
 
 
-//TODO: make functions in lib_satrund.c for the treatment of req and replying with res
+//TODO: make functions in lib_saturnd.c for the treatment of req and replying with res
 //this saturnd.c was used for tests during our work 
 
 int main(int argc, char *argv[])
