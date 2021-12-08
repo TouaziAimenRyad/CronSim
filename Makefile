@@ -1,4 +1,10 @@
+CC = gcc
+EXEC = cassini
 
-cassini.o : src/cassini.c
-	gcc -o src/cassini.o -c src/cassini.c
 
+cassini.o : src/cassini.c 
+	$(CC) src/cassini.c -o $(EXEC)
+
+
+distclean : 
+	rm cassini
