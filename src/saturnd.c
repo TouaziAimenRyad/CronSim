@@ -1,58 +1,66 @@
 #include "../include/saturnd.h"
+#include "../include/lib_deamon.h"
+#include "./lib_deamon.c"
 
 
 //TODO: make functions in lib_saturnd.c for the treatment of req and replying with res
-//this saturnd.c was used for tests during our work 
 
 int main(int argc, char *argv[])
 {
+    pid_t pid;
+    int x_fd;
 
-    char *req_opcode = malloc(sizeof(uint16_t));
-    uint64_t req_task_id;
-    char *req_min = malloc(sizeof(uint64_t));
-    char *req_hr = malloc(sizeof(uint32_t));
-    char *req_dy = malloc(sizeof(uint8_t));
-    char *req_cmd = malloc(sizeof(uint32_t));
-
-    char *pathname_req = "./run/pipes/saturnd-request-pipe";
-    char *pathname_res = "./run/pipes/saturnd-response-pipe";
-    if (mkfifo(pathname_req, 0777) == -1)
-    {
-        if (errno != EEXIST)
-        {
-            perror("problem creating fifo_req");
-            return 1;
-        }
+    //step 1 fork the parent
+    pid=fork();
+    if(pid<0){ //in case of err
+      exit(EXIT_FAILURE);
     }
-    if (mkfifo(pathname_res, 0777) == -1)
-    {
-        if (errno != EEXIST)
-        {
-            perror("problem creating fifo_res");
-            return 2;
-        }
+    if(pid>0){// terminate the parrent 
+        exit(EXIT_SUCCESS);
     }
 
+    //step 2 the child process becomes the session leader and processs group leader 
+    if(setsid()<0){
+        exit(EXIT_FAILURE);
+    }
+
+    //step3 catch ignore and handle signals 
+    signal(SIGCHLD,SIG_IGN);
+    signal(SIGHUP,SIG_IGN);
+
+    //step4 fork for the second time cause we dont want for session id to be same as process id
+    pid=fork();
+    if (pid<0){
+        exit(EXIT_FAILURE);
+    }
+    if (pid>0){// terminate parent 
+        printf("Parent id %d \n",getpid());
+        exit(EXIT_SUCCESS);
+    }
+
+
+    //step5 set the new file permissions that is created by deamon
+    umask(077);
+
+
+    //step6 change the working directory to the root directory if the curent directory is on some mounted file system so deamon process will not let the mounted file system to unmount 
+    chdir("/");
+
+
+    //step 7 close all open file discreptors 
+    for (x_fd=sys_conf(_SC_OPEN_MAX);x_fd>=0;x_fd--){
+        close(x_fd);
+    }
+
+    //final step 8 execute the tasks ??
     while (1)
     {
-
-        int fd_req = open(pathname_req, O_RDONLY);
-        int fd_res = open(pathname_res, O_WRONLY);
-        read(fd_req, req_opcode, sizeof(uint16_t));
-        uint16_t opcode2 = strtol(req_opcode,NULL,16);
-        uint16_t opcode = htobe16(opcode2); //needs fixing
-        uint16_t reply=be16toh(SERVER_REPLY_OK);
-        char* res=malloc(16);
-        sprintf(res,"%u",reply);
-            close(fd_req);
-            write(fd_res,&reply,sizeof(uint16_t));
-            printf("reply = %s \n", res);
-            break;
-
-
-
-        
-        
+        sleep(1);
+        //execute what you execute 
     }
+    
+    return 1;
+
+    
 }
 
