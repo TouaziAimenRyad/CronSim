@@ -5,6 +5,8 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <errno.h>
+#include <syslog.h>
+#include <signal.h>
 
 #include "../include/includes.h"
 #include "client-request.h"
@@ -15,7 +17,5 @@
 #include "task.h"
 #include "../src/timing-text-io.c"
 #include "../src/command.c"
-
-
 #endif 
 
