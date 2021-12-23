@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     {
         sleep(1);
         //execute what you execute 
+        //first thngs first we need to read the opcode and fortunatly we have a funct for that 
     }
     
     return 1;
