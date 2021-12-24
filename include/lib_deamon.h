@@ -9,11 +9,11 @@
 //request headers
 
 
-uint16_t deamon_read_req_opcode();
+uint16_t deamon_read_req_opcode(int fd_req);
 
-void deamon_read_req_creat_task();
+void deamon_read_req_creat_task(int fd_req);
 
-void deamon_read_req_remove_task();
+void deamon_read_req_remove_task(int fd_req);
 
 
 
