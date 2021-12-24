@@ -29,6 +29,7 @@ uint16_t deamon_read_req_opcode()
     }
 
     read(fd_req,&opcode,sizeof(uint16_t));
+    close(fd_req);
 
 
     return be16toh(opcode);
@@ -87,6 +88,8 @@ void deamon_read_req_creat_task()
        strcat(data," ");
 
     }  
+    
+    close(fd_req);
 
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response 
@@ -112,7 +115,7 @@ void deamon_read_req_remove_task()
     }
 
     read(fd_req,&taskid,sizeof(uint64_t));
-
+    close(fd_req);
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response by calling for funct that handle 
 
