@@ -75,6 +75,8 @@ void deamon_read_req_remove_task(int fd_req)
 {
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
+    taskid=be64toh(taskid);
+    printf("%ld",taskid);
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response by calling for funct that handle 
 
