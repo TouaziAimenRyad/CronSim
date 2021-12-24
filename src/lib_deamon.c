@@ -3,19 +3,8 @@
 
 
 //response functions  
-void deamon_write_res_create(uint64_t taskid)
+void deamon_write_res_create(int fd_res,uint64_t taskid)
 {
-   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-   int fd_res = open(pathname_res, O_RDONLY);
-   if(fd_res==-1)
-    {
-       
-        perror("failed opening of request pipe");
-
-       
-        exit(EXIT_FAILURE);
-    }
-
     uint16_t reply_code=be16toh(SERVER_REPLY_OK);
     void * reply=malloc(sizeof(uint64_t)+sizeof(uint16_t));
     *((uint16_t *)reply)=reply_code;
@@ -26,18 +15,9 @@ void deamon_write_res_create(uint64_t taskid)
 
 }
 
-void deamon_write_res_remove(uint16_t reply_code) //reply code depends on the execution of the server it could be err or ok check server_reply.h
+void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depends on the execution of the server it could be err or ok check server_reply.h
 {
-   char *pathname_res = "./run/pipes/saturnd-reply-pipe";
-   int fd_res = open(pathname_res, O_RDONLY);
-   if(fd_res==-1)
-    {
-       
-        perror("failed opening of request pipe");
-
-       
-        exit(EXIT_FAILURE);
-    }
+  
     if(reply_code==SERVER_REPLY_OK)
     {
        uint16_t reply_ok=be16toh(reply_code);
@@ -59,7 +39,7 @@ void deamon_write_res_remove(uint16_t reply_code) //reply code depends on the ex
 
 }
 
-void deamon_write_res_list()
+void deamon_write_res_list(int fd_res)
 {
 
 }
