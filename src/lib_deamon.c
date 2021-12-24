@@ -22,6 +22,8 @@ void deamon_write_res_create(uint64_t taskid)
     *((uint64_t *)(reply+16))=taskid;
     write(fd_res,&reply,sizeof(uint64_t)+sizeof(uint16_t));
 
+    close(fd_res);
+
 
 
 }
@@ -54,6 +56,7 @@ void deamon_write_res_remove(uint16_t reply_code) //reply code depends on the ex
        write(fd_res,&reply,sizeof(uint16_t));
 
     }
+    close(fd_res);
     
 
 
@@ -69,13 +72,13 @@ void deamon_write_res_list()
 
 //request functions 
 
-uint16_t deamon_read_req_opcode()
+uint16_t deamon_read_req_opcode(int fd_req)
 {
    char *pathname_req = "./run/pipes/saturnd-request-pipe";
    uint16_t opcode;
    
    /* On ouvre le fichier de réponse en lecture : */
-   int fd_req = open(pathname_req, O_RDONLY);
+   //int fd_req = open(pathname_req, O_RDONLY);
 
    /* Si la lecture échoute ( fichier inexistant ou autre ) :  */
    if(fd_req==-1)
@@ -89,13 +92,14 @@ uint16_t deamon_read_req_opcode()
 
     read(fd_req,&opcode,sizeof(uint16_t));
 
-
-    return be16toh(opcode);
+    write(1,&opcode,sizeof(uint16_t));
+    return (opcode);
 
 }
 
-void deamon_read_req_creat_task()
+void deamon_read_req_creat_task(int fd_req)
 {
+    deamon_read_req_opcode(fd_req);
   char *pathname_req = "./run/pipes/saturnd-request-pipe";
 
   int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
@@ -111,32 +115,36 @@ void deamon_read_req_creat_task()
   char * data = "";
 
   /* On ouvre le fichier de réponse en lecture : */
-  int fd_req = open(pathname_req, O_RDONLY);
+  //int fd_req = open(pathname_req, O_RDONLY);
 
   /* Si la lecture échoute ( fichier inexistant ou autre ) :  */
-  if(fd_req==-1)
-    {
+  printf("99999999\n");
+  //if(fd_req==-1)
+  //  {
         /* Message d'erreur  : */
-        perror("failed opening of request pipe");
+       // perror("failed opening of request pipe");
 
         /* on arrete le programme :*/
-        exit(EXIT_FAILURE);
-    }
+       // exit(EXIT_FAILURE);
+   // }
 
-    read(fd_req,time_req,sizeof(size_timing));
-    min = *(( uint64_t *)time_req);;
+    //read(fd_req,time_req,sizeof(size_timing));
+    /*min = *(( uint64_t *)time_req);
     hr = *(( uint32_t *)(time_req+64));
-    dy = *(( uint8_t *)(time_req+32));
-
+    dy = *(( uint8_t *)(time_req+32));*/
+    read(fd_req,&min,sizeof(uint64_t));
+    read(fd_req,&hr,sizeof(uint32_t));
+    read(fd_req,&dy,sizeof(uint8_t));
+    printf("%lu %u %u\n",min,hr,dy);
     time->minutes=be64toh(min);
     time->hours=be32toh(hr);
     time->daysofweek=dy;
     timing_string_from_timing(time_str,time);
-
+    printf("999999991\n");
     read(fd_req,&argc,sizeof(uint32_t));
-    argc=be32toh(argc);
-    
-    for(int i =0 ; i<argc;i++)
+    //argc=be32toh(argc);
+    //printf("%u",argc);
+   /* for(int i =0 ; i<argc;i++)
     {
        read(fd_req,&arglen,sizeof(uint32_t));
        arglen=be32toh(arglen);
@@ -145,8 +153,10 @@ void deamon_read_req_creat_task()
        strcat(data,argv);
        strcat(data," ");
 
-    }  
-
+    }  */
+    printf("99999999\n");
+    printf("%x",argc);
+    deamon_write_res_create(5984452);
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response 
 
