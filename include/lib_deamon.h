@@ -7,8 +7,10 @@ void deamon_write_res_create(int fd_res,uint64_t taskid);
 void deamon_write_res_remove(int fd_res,uint16_t reply_code);
 void deamon_write_res_list(int fd_res);
 
-//request headers
 
+
+
+//request headers
 
 uint16_t deamon_read_req_opcode(int fd_req);
 

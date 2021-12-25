@@ -12,8 +12,6 @@ void deamon_write_res_create(int fd_res,uint64_t taskid)
     write(fd_res,&reply,sizeof(uint64_t)+sizeof(uint16_t));
 
 
-//---------------------------------------------------------------------------------------------------------------
-
 }
 
 void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depends on the execution of the server it could be err or ok check server_reply.h
@@ -47,8 +45,12 @@ void deamon_write_res_list(int fd_res)
 
 
 
-//request functions 
 
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+//request functions 
 
 uint16_t deamon_read_req_opcode( int fd_req)
 {
