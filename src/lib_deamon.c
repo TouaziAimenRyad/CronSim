@@ -2,6 +2,11 @@
 #include "../include/lib_deamon.h"
 
 
+//aux functions
+//we need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------
 //response functions  
 void deamon_write_res_create(int fd_res,uint64_t taskid)
 {
@@ -62,9 +67,10 @@ uint16_t deamon_read_req_opcode( int fd_req)
 
 
 
-void deamon_read_req_creat_task( int fd_req)
+void deamon_read_req_creat_task( int fd_req ,uint64_t taskid , struct TASK  **task_table )
 {
-
+  struct TASK new_task;
+  struct command_line new_command_ligne;
   int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
   void * time =malloc(size_timing);
   uint64_t min;
@@ -88,8 +94,8 @@ void deamon_read_req_creat_task( int fd_req)
   time_struct->minutes=min;
   time_struct->hours=hr;
   time_struct->daysofweek=dy;
-  
-  printf("%ld  %d  %d\n",min,hr,dy);
+
+  printf("test %ld  %d  %d\n",min,hr,dy);
   
   read(fd_req,&argc,sizeof(uint32_t)); 
   argc=be32toh(argc);
@@ -105,10 +111,19 @@ void deamon_read_req_creat_task( int fd_req)
   }  
     
     
-    printf("%s ",data);
+    printf("test2 %s \n",data);
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response 
 
+
+  new_task.time=*time_struct;
+  new_task.task_id=taskid;
+  new_command_ligne.ARGC=argc;
+  new_command_ligne.ARGV=data;
+  new_task.command=&new_command_ligne;
+  
+  append_task(task_table,&new_task);
+  printf("%lu  %u %u %lu %s\n",new_task.time.minutes,new_task.time.hours,new_task.time.daysofweek,new_task.task_id ,(char*)new_task.command->ARGV);
 
 }
 

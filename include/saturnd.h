@@ -17,5 +17,6 @@
 #include "task.h"
 #include "../src/timing-text-io.c"
 #include "../src/command.c"
+#include "../src/task.c"
 #endif 
 
