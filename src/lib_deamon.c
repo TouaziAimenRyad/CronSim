@@ -11,10 +11,14 @@
 void deamon_write_res_create(int fd_res,uint64_t taskid)
 {
     uint16_t reply_code=be16toh(SERVER_REPLY_OK);
-    void * reply=malloc(sizeof(uint64_t)+sizeof(uint16_t));
+    taskid=be64toh(taskid);
+   // write(1,&reply_code,sizeof(uint16_t)); rani naktab ok tssama ki na9raha nal9a ko
+    write(fd_res,&reply_code,sizeof(uint16_t));
+    write(fd_res,&taskid,sizeof(uint64_t));
+   /* void * reply=malloc(sizeof(uint64_t)+sizeof(uint16_t));
     *((uint16_t *)reply)=reply_code;
-    *((uint64_t *)(reply+16))=taskid;
-    write(fd_res,&reply,sizeof(uint64_t)+sizeof(uint16_t));
+    *((uint64_t *)(reply+sizeof(uint16_t)))=taskid;
+    write(fd_res,&reply,sizeof(uint64_t)+sizeof(uint16_t));*/
 
 
 }
@@ -67,7 +71,7 @@ uint16_t deamon_read_req_opcode( int fd_req)
 
 
 
-void deamon_read_req_creat_task( int fd_req ,uint64_t taskid , struct TASK  **task_table )
+void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  **task_table )
 {
   struct TASK new_task;
   struct command_line new_command_ligne;
@@ -95,7 +99,7 @@ void deamon_read_req_creat_task( int fd_req ,uint64_t taskid , struct TASK  **ta
   time_struct->hours=hr;
   time_struct->daysofweek=dy;
 
-  printf("test %ld  %d  %d\n",min,hr,dy);
+  
   
   read(fd_req,&argc,sizeof(uint32_t)); 
   argc=be32toh(argc);
@@ -111,7 +115,7 @@ void deamon_read_req_creat_task( int fd_req ,uint64_t taskid , struct TASK  **ta
   }  
     
     
-    printf("test2 %s \n",data);
+    
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response 
 
@@ -123,7 +127,8 @@ void deamon_read_req_creat_task( int fd_req ,uint64_t taskid , struct TASK  **ta
   new_task.command=&new_command_ligne;
   
   append_task(task_table,&new_task);
-  printf("%lu  %u %u %lu %s\n",new_task.time.minutes,new_task.time.hours,new_task.time.daysofweek,new_task.task_id ,(char*)new_task.command->ARGV);
+
+  deamon_write_res_create(fd_res,taskid);
 
 }
 
