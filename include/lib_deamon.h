@@ -21,7 +21,7 @@ uint16_t deamon_read_req_opcode(int fd_req);
 
 void deamon_read_req_creat_task(int fd_req,int fd_res,uint64_t taskid , struct TASK  **task_table );
 
-void deamon_read_req_remove_task(int fd_req);
+void deamon_read_req_remove_task(int fd_req,int fd_res, struct TASK  **task_table);
 
 
 

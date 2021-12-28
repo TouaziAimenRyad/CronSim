@@ -15,6 +15,7 @@ void deamon_write_res_create(int fd_res,uint64_t taskid)
    // write(1,&reply_code,sizeof(uint16_t)); rani naktab ok tssama ki na9raha nal9a ko
     write(fd_res,&reply_code,sizeof(uint16_t));
     write(fd_res,&taskid,sizeof(uint64_t));
+    //this is not working and i 'dont know why s
    /* void * reply=malloc(sizeof(uint64_t)+sizeof(uint16_t));
     *((uint16_t *)reply)=reply_code;
     *((uint64_t *)(reply+sizeof(uint16_t)))=taskid;
@@ -132,7 +133,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
 
 }
 
-void deamon_read_req_remove_task(int fd_req)
+void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  **task_table)
 {
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
