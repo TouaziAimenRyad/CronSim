@@ -75,6 +75,8 @@ uint16_t deamon_read_req_opcode( int fd_req)
 
 
 
+
+
 void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  *task_table ,int *nbtask)
 {
   struct TASK new_task;
@@ -118,12 +120,6 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   }  
     
     
-    
-    //after we are done reading we execute what needs to be executed from the server 
-    //after that we send the response 
-  
-
-
   new_task.time=time_str;
   new_task.task_id=taskid;
   new_task.ARGC=argc;
@@ -131,20 +127,54 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   //new_task.next = NULL;
 
   //append_task(task_table,&new_task);
-
-  task_table[*nbtask]=new_task;
+  
+  int pos=*nbtask;
+  task_table[pos]=new_task;
+  (*nbtask)++;
  
    
   deamon_write_res_create(fd_res,taskid);
 
 }
 
-void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_table)
+
+
+
+void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_table ,int * nbtask)
 {
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
     taskid=be64toh(taskid);
     printf(" id to remove   %lu\n",taskid);
+    int i=0;
+    int trouv=0;
+    while (i<*nbtask && trouv==0)
+    {
+      if (task_table[i].task_id==taskid)
+      {
+        trouv=1;
+      }else
+      {
+        i++;
+      }
+      
+    }
+    if(trouv==1)
+    {
+      for (int j = i; j < *nbtask-1; j++)
+      {
+        task_table[i]=task_table[i+1];
+      }
+
+      *nbtask=*nbtask-1;
+      deamon_write_res_remove(fd_res,SERVER_REPLY_OK);
+      
+    }
+    else
+    {
+      deamon_write_res_remove(fd_res,SERVER_REPLY_ERROR);
+    }
+    
     //printf("test in %s \n",(char *)(((*task_table).command)->ARGV));
     //int delet_flag = delet_task(task_table,taskid);
     /*if (delet_flag==1)
@@ -153,7 +183,7 @@ void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_tabl
     }
     else
     {
-      deamon_write_res_remove(fd_res,SERVER_REPLY_ERROR);
+     
     }*/
     
 

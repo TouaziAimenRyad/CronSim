@@ -528,6 +528,10 @@ void client_get_res_remove(){
         printf("%x",error);
         exit(0);
     }
+    else
+    {
+        printf("%x",restype);
+    }
     // Fermeture du descripteur :
     close(fd_res);
    
