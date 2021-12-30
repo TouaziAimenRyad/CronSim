@@ -120,7 +120,7 @@ void deamon_read_req_creat_task(int fd_req)
   uint32_t hr;
   uint8_t dy;
   struct timing *time_struct = malloc(size_timing);
-  char *time_str = malloc(size_timing);
+  //char *time_str = malloc(size_timing);
 
   uint32_t argc;
   uint32_t arglen;
@@ -174,15 +174,15 @@ void deamon_read_req_remove_task(int fd_req)
 
 void demon_read_request_stdout_task(int fd){
   uint64_t task_id;
-  read(fd,&task_id,sizeof(uint64_t);
-  taskid = be64toh(taskid);
+  read(fd,&task_id,sizeof(uint64_t));
+  task_id = be64toh(task_id);
   printf("%ld",task_id);
 }
 
 // Read sterr : 
 void demon_read_request_stderr_task(int fd){
   uint64_t task_id;
-  read(fd,&task_id,sizeof(uint64_t);
-  taskid = be64toh(taskid);
+  read(fd,&task_id,sizeof(uint64_t));
+  task_id = be64toh(task_id);
   printf("%ld",task_id);
 }
