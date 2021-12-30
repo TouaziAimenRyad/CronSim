@@ -1,7 +1,10 @@
 #include "../include/includes.h"
 #include "../include/lib_deamon.h"
 
-// response functions
+// Responses functions :
+
+// Creat : 
+
 void deamon_write_res_create(int fd_res, uint64_t taskid)
 {
   uint16_t reply_code = be16toh(SERVER_REPLY_OK);
@@ -11,7 +14,11 @@ void deamon_write_res_create(int fd_res, uint64_t taskid)
   write(fd_res, &reply, sizeof(uint64_t) + sizeof(uint16_t));
 }
 
-void deamon_write_res_remove(int fd_res, uint16_t reply_code) // reply code depends on the execution of the server it could be err or ok check server_reply.h
+// Remove : 
+
+// reply code depends on the execution of the server it could be err or ok check server_reply.h
+
+void deamon_write_res_remove(int fd_res, uint16_t reply_code) 
 {
 
   if (reply_code == SERVER_REPLY_OK)
@@ -30,19 +37,30 @@ void deamon_write_res_remove(int fd_res, uint16_t reply_code) // reply code depe
   }
 }
 
+
+//  List : 
+
 void deamon_write_res_list(int fd_res)
 {
 }
 
+
+
+// Stdout :
+
 void demon_write_res_stdout(int fd, uint32_t reponse_code)
 {
+  // Si la réponse envoyée par le serveur est ok alors 
+
   if (reponse_code == SERVER_REPLY_OK)
   {
     uint16_t reponse_ok = be32toh(reponse_code);
+    // On écrit dans notre fifo : 
     write(fd, &reponse_ok, sizeof(uint32_t));
   }
   else
   {
+    // Sinon : ( la réponse vnoyée par le serveur est erreur alors )
     uint16_t reponse_erreur = be16toh(reponse_code);
     uint16_t error_code = be16toh(reponse_code);
     void *reponse = malloc(sizeof(uint16_t));
@@ -51,16 +69,22 @@ void demon_write_res_stdout(int fd, uint32_t reponse_code)
     write(fd, &reponse, sizeof(uint16_t));
   }
 }
+
+// Stderr :
 
 void demon_write_res_stderr(int fd, uint32_t reponse_code)
 {
+  
+  // Si la réponse envoyée par le serveur est ok alors 
   if (reponse_code == SERVER_REPLY_OK)
   {
     uint16_t reponse_ok = be32toh(reponse_code);
+    // On écrit dans notre fifo  la réponse envoyée par le serveur :
     write(fd, &reponse_ok, sizeof(uint32_t));
   }
   else
   {
+    // Sinon : ( la réponse envoyée est erreur  ) :
     uint16_t reponse_erreur = be16toh(reponse_code);
     uint16_t error_code = be16toh(reponse_code);
     void *reponse = malloc(sizeof(uint16_t));
@@ -70,9 +94,12 @@ void demon_write_res_stderr(int fd, uint32_t reponse_code)
   }
 }
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------
+//  ----------------------------------------------------------------------------------------------
 
-// request functions
+// Request functions :
+
+
+// Read opcode :
 
 uint16_t deamon_read_req_opcode(int fd_req)
 {
@@ -80,6 +107,9 @@ uint16_t deamon_read_req_opcode(int fd_req)
   read(fd_req, &opcode, sizeof(uint16_t));
   return (opcode);
 }
+
+
+// Read creat : 
 
 void deamon_read_req_creat_task(int fd_req)
 {
@@ -127,6 +157,8 @@ void deamon_read_req_creat_task(int fd_req)
   // after that we send the response
 }
 
+// Read remove : 
+
 void deamon_read_req_remove_task(int fd_req)
 {
   uint64_t taskid;
@@ -135,4 +167,22 @@ void deamon_read_req_remove_task(int fd_req)
   printf("%ld", taskid);
   // after we are done reading we execute what needs to be executed from the server
   // after that we send the response by calling for funct that handle
+}
+
+
+// Read stdout :
+
+void demon_read_request_stdout_task(int fd){
+  uint64_t task_id;
+  read(fd,&task_id,sizeof(uint64_t);
+  taskid = be64toh(taskid);
+  printf("%ld",task_id);
+}
+
+// Read sterr : 
+void demon_read_request_stderr_task(int fd){
+  uint64_t task_id;
+  read(fd,&task_id,sizeof(uint64_t);
+  taskid = be64toh(taskid);
+  printf("%ld",task_id);
 }
