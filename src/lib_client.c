@@ -519,11 +519,8 @@ void client_get_res_remove(){
     }
     /* On va lire notre fichier en respectant le protocole : */
     read(fd_res,&restype,sizeof(uint16_t));
+    
 
-    // Fermeture du descripteur :
-    close(fd_res);
-
-   
     if (restype==be16toh(SERVER_REPLY_ERROR))
     {
         read(fd_res,&error,sizeof(uint16_t));
@@ -531,7 +528,8 @@ void client_get_res_remove(){
         printf("%x",error);
         exit(0);
     }
-    
+    // Fermeture du descripteur :
+    close(fd_res);
    
     
 }

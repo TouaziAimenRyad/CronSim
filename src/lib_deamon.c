@@ -36,11 +36,13 @@ void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depend
     else
     {
        uint16_t reply_err=be16toh(reply_code);
-       uint16_t err_code=be16toh(reply_code);
-       void *reply=malloc(2*sizeof(uint16_t));
+       uint16_t err_code=be16toh(SERVER_REPLY_ERROR_NOT_FOUND);
+       write(fd_res,&reply_err,sizeof(uint16_t));
+       write(fd_res,&err_code,sizeof(uint16_t));
+       /*void *reply=malloc(2*sizeof(uint16_t));
        *((uint16_t *)reply)=reply_err;
        *((uint16_t *)(reply+16))=err_code;
-       write(fd_res,&reply,sizeof(uint16_t));
+       write(fd_res,&reply,sizeof(uint16_t));*/
 
     }
     
@@ -66,16 +68,16 @@ uint16_t deamon_read_req_opcode( int fd_req)
 {
    uint16_t opcode;
    read(fd_req,&opcode,sizeof(uint16_t));
+   opcode=be16toh(opcode);
    return (opcode);
 
 }
 
 
 
-void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  **task_table )
+void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  *task_table ,int *nbtask)
 {
   struct TASK new_task;
-  struct command_line new_command_ligne;
   int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
   void * time =malloc(size_timing);
   uint64_t min;
@@ -99,7 +101,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   time_struct->minutes=min;
   time_struct->hours=hr;
   time_struct->daysofweek=dy;
-
+  timing_string_from_timing( time_str, time_struct);
   
   
   read(fd_req,&argc,sizeof(uint32_t)); 
@@ -119,26 +121,42 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
     
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response 
-
-
-  new_task.time=*time_struct;
-  new_task.task_id=taskid;
-  new_command_ligne.ARGC=argc;
-  new_command_ligne.ARGV=data;
-  new_task.command=&new_command_ligne;
   
-  append_task(task_table,&new_task);
 
+
+  new_task.time=time_str;
+  new_task.task_id=taskid;
+  new_task.ARGC=argc;
+  new_task.ARGV=data;
+  //new_task.next = NULL;
+
+  //append_task(task_table,&new_task);
+
+  task_table[*nbtask]=new_task;
+ 
+   
   deamon_write_res_create(fd_res,taskid);
 
 }
 
-void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  **task_table)
+void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_table)
 {
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
     taskid=be64toh(taskid);
-    printf("%ld",taskid);
+    printf(" id to remove   %lu\n",taskid);
+    //printf("test in %s \n",(char *)(((*task_table).command)->ARGV));
+    //int delet_flag = delet_task(task_table,taskid);
+    /*if (delet_flag==1)
+    {
+      deamon_write_res_remove(fd_res,SERVER_REPLY_OK);
+    }
+    else
+    {
+      deamon_write_res_remove(fd_res,SERVER_REPLY_ERROR);
+    }*/
+    
+
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response by calling for funct that handle 
 
