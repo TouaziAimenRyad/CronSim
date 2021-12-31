@@ -50,9 +50,43 @@ void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depend
 
 }
 
-void deamon_write_res_list(int fd_res)
+void deamon_write_res_list(int fd_res ,struct TASK  *task_table,int *nbtask)
 {
+  int time_size=sizeof(uint64_t)+sizeof(uint8_t)+sizeof(uint32_t);
+  char * time_str=malloc(time_size);
+  char *min =malloc(sizeof(uint64_t));
+  char *hr =malloc(sizeof(uint32_t));
+  char *dy =malloc(sizeof(uint8_t));
 
+  struct timing time_struct;
+
+  uint16_t reptype=be16toh(SERVER_REPLY_OK);
+  uint32_t nb_task=*((uint32_t *) nbtask);
+  uint64_t taskid;
+  uint32_t argc;
+
+  printf("%x    %d\n",reptype,nb_task);
+
+  //write(fd_res,&reptype,sizeof(uint16_t));
+  //write(fd_res,&nb_task,sizeof(uint32_t));
+  int i=0;
+  //for (int i = 0; i < *nbtask; i++)
+  //{
+    taskid=task_table[i].task_id;
+    time_str=task_table[i].time;
+    
+    printf("%s   \n",min/*,hr,dy*/);
+    argc=task_table[i].ARGC;
+
+
+    
+ // }
+  
+
+
+
+ 
+ 
 }
 
 
@@ -77,7 +111,7 @@ uint16_t deamon_read_req_opcode( int fd_req)
 
 
 
-void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  *task_table ,int *nbtask)
+void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct TASK  *task_table ,int *nbtask) //this works
 {
   struct TASK new_task;
   int size_timing=sizeof(uint32_t)+sizeof(uint64_t)+sizeof(uint8_t);
@@ -140,7 +174,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
 
 
 
-void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_table ,int * nbtask)
+void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_table ,int * nbtask)  //this works
 {
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
@@ -175,19 +209,5 @@ void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_tabl
       deamon_write_res_remove(fd_res,SERVER_REPLY_ERROR);
     }
     
-    //printf("test in %s \n",(char *)(((*task_table).command)->ARGV));
-    //int delet_flag = delet_task(task_table,taskid);
-    /*if (delet_flag==1)
-    {
-      deamon_write_res_remove(fd_res,SERVER_REPLY_OK);
-    }
-    else
-    {
-     
-    }*/
-    
-
-    //after we are done reading we execute what needs to be executed from the server 
-    //after that we send the response by calling for funct that handle 
 
 }
