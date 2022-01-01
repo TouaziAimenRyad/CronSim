@@ -3,7 +3,7 @@
 
 
 //switch case in the sat file is what's causing pblm
-
+/*
 void printList(struct TASK **head) 
 {
    struct TASK *temp;
@@ -38,7 +38,7 @@ void append_task(struct TASK** head, struct TASK *new_data)
 
 
 }
- */
+ 
 int delet_task(struct TASK **head, uint64_t id)//problm with argc of the structure
 {
    printf("in taskid %lu\n",(*head)->task_id);
@@ -49,4 +49,4 @@ int delet_task(struct TASK **head, uint64_t id)//problm with argc of the structu
    
    
     return 0;
-}
+}*/

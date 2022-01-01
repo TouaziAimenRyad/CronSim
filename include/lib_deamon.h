@@ -4,13 +4,13 @@
 
 //aux functions 
 
-
+void get_argvs(char* argv, char * list[]);
 
 
 //response headers
 void deamon_write_res_create(int fd_res,uint64_t taskid);
 void deamon_write_res_remove(int fd_res,uint16_t reply_code);
-void deamon_write_res_list(int fd_res,struct TASK  *task_table ,int *nbtask);
+void deamon_write_res_list(int fd_res,struct TASK  *task_table ,uint32_t nbtask);
 
 
 

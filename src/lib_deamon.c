@@ -5,6 +5,30 @@
 //aux functions
 //we need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
 
+void get_argvs(char* argv, char * list[])
+{ 
+  int len=strlen(argv);
+  int i=0;
+  int j=0;
+  int t=0;
+  while (i<len)
+  {
+    if(*(argv+i)!=' ')
+    {
+      list[j][t]=*(argv+i);
+      t++;
+    }
+    else
+    {
+      t=0;
+      j++;
+    }
+    i++;
+  }
+  
+
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //response functions  
@@ -50,39 +74,86 @@ void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depend
 
 }
 
-void deamon_write_res_list(int fd_res ,struct TASK  *task_table,int *nbtask)
+void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
 {
-  int time_size=sizeof(uint64_t)+sizeof(uint8_t)+sizeof(uint32_t);
-  char * time_str=malloc(time_size);
-  char *min =malloc(sizeof(uint64_t));
-  char *hr =malloc(sizeof(uint32_t));
-  char *dy =malloc(sizeof(uint8_t));
+  
+  uint64_t min; 
+  uint32_t hr;
+  uint8_t dy ;
 
   struct timing time_struct;
 
-  uint16_t reptype=be16toh(SERVER_REPLY_OK);
-  uint32_t nb_task=*((uint32_t *) nbtask);
+  uint16_t reptype=be16toh(SERVER_REPLY_OK);//
+  uint32_t nb_task= (nbtask);//
   uint64_t taskid;
   uint32_t argc;
+  char * argv="";
+  char * argv_list="";
+  
+  //printf("%x    %u\n",reptype,nb_task);
 
-  printf("%x    %d\n",reptype,nb_task);
+  write(fd_res,&reptype,sizeof(uint16_t));
+  write(fd_res,&nbtask,sizeof(uint32_t)); //this pblm
+  /*size_t offset=0;
+  *((uint16_t * )task)=reptype;
+  offset+=sizeof(uint16_t);
+  *((uint32_t * )task+offset)=nb_task;
+  offset+=sizeof(uint32_t);*/
 
-  //write(fd_res,&reptype,sizeof(uint16_t));
-  //write(fd_res,&nb_task,sizeof(uint32_t));
-  int i=0;
-  //for (int i = 0; i < *nbtask; i++)
-  //{
-    taskid=task_table[i].task_id;
-    time_str=task_table[i].time;
+  for (int i = 0; i < nbtask; i++)
+  {
+    taskid=be64toh(task_table[i].task_id);//
+    write(fd_res,&taskid,sizeof(uint64_t));//this pblm
+   /* *((uint64_t * )task+offset)=taskid;
+    offset+=sizeof(uint64_t);*/
+
+    time_struct=task_table[i].time;
+    min=be64toh(time_struct.minutes);//
+    write(fd_res,&min,sizeof(uint64_t));//this pblm
+    /**((uint64_t * )task+offset)=min;
+    offset+=sizeof(uint64_t);*/
+
+    hr=be32toh( time_struct.hours);//
+    write(fd_res,&hr,sizeof(uint32_t));//this pblm
+    /* *((uint32_t * )task+offset)=hr;
+    offset+=sizeof(uint32_t);*/
+
+    dy=time_struct.daysofweek;//
+    write(fd_res,&dy,sizeof(uint8_t));//this pblm
+    /**((uint8_t * )task+offset)=dy;
+    offset+=sizeof(uint8_t);*/
+
+    argc=be32toh( task_table[i].ARGC);//
+    write(fd_res,&argc,sizeof(uint32_t));//this pblm
+    /**((uint32_t * )task+offset)=argc;
+    offset+=sizeof(uint32_t);*/
     
-    printf("%s   \n",min/*,hr,dy*/);
-    argc=task_table[i].ARGC;
+    //printf("%lu   %u   %u    %u\n",min,hr,dy,argc);
+    char * token=strtok(task_table[i].ARGV," ");
+    while (token!=NULL)
+    {
+      char *arg=token; //this works
+      uint32_t arglen=(uint32_t)strlen(arg); //this works too
+      write(fd_res,&arglen,sizeof(uint32_t));//this pblm
+      write(fd_res,arg,arglen*sizeof(uint8_t));
+    /* *((uint32_t * )task+offset)=arglen;
+     offset+=sizeof(uint32_t);
+     strcat((char *)task,arg);*/
+      
+      //strcat(argv,arg);
 
-
+      //strcat(argv_list,argv);
+      //printf(" %s   \n",argv);
+      token=strtok(NULL," ");
+    }
     
- // }
+   
   
 
+    
+  }
+  
+  
 
 
  
@@ -154,7 +225,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   }  
     
     
-  new_task.time=time_str;
+  new_task.time=*time_struct;
   new_task.task_id=taskid;
   new_task.ARGC=argc;
   new_task.ARGV=data;

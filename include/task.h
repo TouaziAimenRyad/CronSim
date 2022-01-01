@@ -6,7 +6,7 @@ struct TASK
 {
    // struct TASK *next;   // i literarlly have no idea but apparently when i call for the attribute inside the delete  some weeird stuff happens the only solution is to sacrifce taskid and argc  or turnthemm into strings due to uint problems i guess 
     char *ARGV;
-    char* time;
+    struct timing time;
     uint64_t task_id;
     uint32_t ARGC;
     
