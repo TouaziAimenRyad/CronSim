@@ -83,8 +83,8 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
 
   struct timing time_struct;
 
-  uint16_t reptype=be16toh(SERVER_REPLY_OK);//
-  uint32_t nb_task= (nbtask);//
+  uint16_t reptype=htobe16(SERVER_REPLY_OK);//
+  uint32_t nb_task= htobe32(nbtask);//
   uint64_t taskid;
   uint32_t argc;
   char * argv="";
@@ -93,7 +93,7 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
   //printf("%x    %u\n",reptype,nb_task);
 
   write(fd_res,&reptype,sizeof(uint16_t));
-  write(fd_res,&nbtask,sizeof(uint32_t)); //this pblm
+  write(fd_res,&nb_task,sizeof(uint32_t)); //this pblm
   /*size_t offset=0;
   *((uint16_t * )task)=reptype;
   offset+=sizeof(uint16_t);
@@ -102,18 +102,18 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
 
   for (int i = 0; i < nbtask; i++)
   {
-    taskid=be64toh(task_table[i].task_id);//
+    taskid=htobe64(task_table[i].task_id);//
     write(fd_res,&taskid,sizeof(uint64_t));//this pblm
    /* *((uint64_t * )task+offset)=taskid;
     offset+=sizeof(uint64_t);*/
 
     time_struct=task_table[i].time;
-    min=be64toh(time_struct.minutes);//
+    min=htobe64(time_struct.minutes);//
     write(fd_res,&min,sizeof(uint64_t));//this pblm
     /**((uint64_t * )task+offset)=min;
     offset+=sizeof(uint64_t);*/
 
-    hr=be32toh( time_struct.hours);//
+    hr=htobe32( time_struct.hours);//
     write(fd_res,&hr,sizeof(uint32_t));//this pblm
     /* *((uint32_t * )task+offset)=hr;
     offset+=sizeof(uint32_t);*/
@@ -123,18 +123,21 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
     /**((uint8_t * )task+offset)=dy;
     offset+=sizeof(uint8_t);*/
 
-    argc=be32toh( task_table[i].ARGC);//
+    argc=htobe32( task_table[i].ARGC);//
     write(fd_res,&argc,sizeof(uint32_t));//this pblm
     /**((uint32_t * )task+offset)=argc;
     offset+=sizeof(uint32_t);*/
     
     //printf("%lu   %u   %u    %u\n",min,hr,dy,argc);
-    char * token=strtok(task_table[i].ARGV," ");
+    char *argv_temp=malloc(strlen(task_table[i].ARGV));
+    strcpy(argv_temp,task_table[i].ARGV);
+    char * token=strtok(argv_temp," "); //strtok is modifying the argument
     while (token!=NULL)
     {
       char *arg=token; //this works
       uint32_t arglen=(uint32_t)strlen(arg); //this works too
-      write(fd_res,&arglen,sizeof(uint32_t));//this pblm
+      uint32_t arglen2=htobe32(arglen);
+      write(fd_res,&arglen2,sizeof(uint32_t));//this pblm
       write(fd_res,arg,arglen*sizeof(uint8_t));
     /* *((uint32_t * )task+offset)=arglen;
      offset+=sizeof(uint32_t);
@@ -147,7 +150,8 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
       token=strtok(NULL," ");
     }
     
-   
+    free(argv_temp);
+    argv_temp=NULL;
   
 
     
