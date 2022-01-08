@@ -70,11 +70,12 @@ void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
 void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
 {
   struct stat st ;
-  DIR * dir;
   char * directory="/home/don/DataStore";
   char  filename[500];
   uint32_t nb;
   uint64_t taskid;
+  struct timing time ;
+  char* str_time=malloc(sizeof(uint64_t)+sizeof(uint8_t)+sizeof(uint32_t));
   uint64_t min;
   uint32_t hr;
   uint8_t dy;
@@ -96,19 +97,32 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
 
   read(fd,&nb,sizeof(uint32_t));
   *nbtask=(int)nb;
-  printf("%d\n",*nbtask);
   for (int i = 0; i < nb; i++)
   {
     read(fd,&tasksize,sizeof(uint64_t));
     void *task=malloc((long)tasksize);
     read(fd,task,(long )tasksize);
-    printf("yyyyyyy %ld\n",tasksize);
-    printf("%lu\n",*((uint64_t*)(task)));
+    taskid=*((uint64_t *)(task));
+    min=*((uint64_t *)(task+sizeof(uint64_t)));
+    hr=*((uint32_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)));
+    dy=*((uint8_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)));
+    argc=*((uint32_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)));
+    argv=((char *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)+sizeof(uint32_t)));
+    time.minutes=min;
+    time.hours=hr;
+    time.daysofweek=dy;
+    task_table[i].task_id=taskid;
+    task_table[i].time=time;
+    task_table[i].ARGC=argc;
+    task_table[i].ARGV=argv;
+    timing_string_from_timing(str_time,&time);
+    
+
     free(task);task=NULL;
 
   }
-  
-  
+  free(str_time);str_time=NULL;
+  close(fd);
 
 }
 
@@ -286,16 +300,16 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   
   read(fd_req,time,size_timing);
   min=*((uint64_t *)time);
-  hr=*((uint32_t *)(time+64));
-  hr=*((uint8_t *)(time+64+32));
+  hr=*((uint32_t *)(time+sizeof(uint64_t)));
+  hr=*((uint8_t *)(time+sizeof(uint64_t)+sizeof(uint32_t)));
   min =be64toh(min);
   hr=be32toh(hr);
+ 
 
   time_struct->minutes=min;
   time_struct->hours=hr;
   time_struct->daysofweek=dy;
   timing_string_from_timing( time_str, time_struct);
-  
   
   read(fd_req,&argc,sizeof(uint32_t)); 
   argc=be32toh(argc);
