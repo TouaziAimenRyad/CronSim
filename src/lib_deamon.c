@@ -4,31 +4,113 @@
 
 //aux functions
 //we need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
-
-void get_argvs(char* argv, char * list[])
-{ 
-  int len=strlen(argv);
-  int i=0;
-  int j=0;
-  int t=0;
-  while (i<len)
+void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
+  struct stat st ;
+  char * directory="/home/don/DataStore";
+  char  filename[500];
+  
+  uint64_t taskid;
+  uint64_t min;
+  uint32_t hr;
+  uint8_t dy;
+  uint32_t argc;
+  char * argv;
+  if (stat(directory,&st)==-1){
+    if (mkdir(directory,0700)==-1){
+      perror("couldn't creat data store ");
+      exit(1);
+    }
+  }
+  sprintf(filename,"%s/%s",directory,"TASK_STORE");
+  int fd=open(filename,O_WRONLY | O_CREAT,0700);
+  if(fd==-1)
   {
-    if(*(argv+i)!=' ')
-    {
-      list[j][t]=*(argv+i);
-      t++;
-    }
-    else
-    {
-      t=0;
-      j++;
-    }
-    i++;
+    perror("couldn't open file");
+    exit(1);
   }
   
+  write(fd,&nbtask,sizeof(uint32_t));
+  for (int i = 0; i < nbtask; i++)
+  {
+    taskid=task_table[i].task_id;
+    argc=task_table[i].ARGC;
+    argv=task_table[i].ARGV;
+    min=task_table[i].time.minutes;
+    hr=task_table[i].time.hours;
+    dy=task_table[i].time.daysofweek;
+    uint64_t tasksize=2*sizeof(uint64_t)+2*sizeof(uint32_t)+sizeof(uint8_t)+strlen(argv);
+    void *task =malloc(tasksize+sizeof(uint64_t));
+    int offest=0;
+    *((uint64_t *) (task+offest))=tasksize;
+    offest+=sizeof(uint64_t);
+    *((uint64_t *) (task+offest))=taskid;
+     offest+=sizeof(uint64_t);
+    *((uint64_t *) (task+offest))=min;
+     offest+=sizeof(uint64_t);
+    *((uint32_t *) (task+offest))=hr;
+     offest+=sizeof(uint32_t);
+    *((uint8_t *) (task+offest))=dy;
+     offest+=sizeof(uint8_t);
+    *((uint32_t *) (task+offest))=argc;
+     offest+=sizeof(uint32_t);
+    strcpy((char *)(task + offest), argv);
+
+    write(fd,task,(sizeof(uint64_t)+tasksize));
+    
+    free(task);task=NULL;
+
+   
+  }
+
+  close(fd);
+
 
 }
 
+void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
+{
+  struct stat st ;
+  DIR * dir;
+  char * directory="/home/don/DataStore";
+  char  filename[500];
+  uint32_t nb;
+  uint64_t taskid;
+  uint64_t min;
+  uint32_t hr;
+  uint8_t dy;
+  uint32_t argc;
+  char * argv;
+  long tasksize;
+
+  if (stat(directory,&st)==-1){
+      perror("couldn't find data store ");
+      exit(1);
+  }
+  sprintf(filename,"%s/%s",directory,"TASK_STORE");
+  int fd=open(filename,O_RDONLY | O_APPEND | O_CREAT,0700);
+  if(fd==-1)
+  {
+    perror("couldn't open file");
+    exit(1);
+  } 
+
+  read(fd,&nb,sizeof(uint32_t));
+  *nbtask=(int)nb;
+  printf("%d\n",*nbtask);
+  for (int i = 0; i < nb; i++)
+  {
+    read(fd,&tasksize,sizeof(uint64_t));
+    void *task=malloc((long)tasksize);
+    read(fd,task,(long )tasksize);
+    printf("yyyyyyy %ld\n",tasksize);
+    printf("%lu\n",*((uint64_t*)(task)));
+    free(task);task=NULL;
+
+  }
+  
+  
+
+}
 
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //response functions  
