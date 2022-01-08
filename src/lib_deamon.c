@@ -134,10 +134,10 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
     char * token=strtok(argv_temp," "); //strtok is modifying the argument
     while (token!=NULL)
     {
-      char *arg=token; //this works
-      uint32_t arglen=(uint32_t)strlen(arg); //this works too
+      char *arg=token; 
+      uint32_t arglen=(uint32_t)strlen(arg); 
       uint32_t arglen2=htobe32(arglen);
-      write(fd_res,&arglen2,sizeof(uint32_t));//this pblm
+      write(fd_res,&arglen2,sizeof(uint32_t));
       write(fd_res,arg,arglen*sizeof(uint8_t));
     /* *((uint32_t * )task+offset)=arglen;
      offset+=sizeof(uint32_t);
@@ -200,7 +200,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   uint32_t argc;
   uint32_t arglen;
   char * argv;
-  char * data = malloc(sizeof(uint8_t));
+  char * data = malloc(sizeof(uint8_t)); //this cant be freed cause we saving the adress pointer in the stask structure 
   
   read(fd_req,time,size_timing);
   min=*((uint64_t *)time);
@@ -224,7 +224,9 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
     argv=malloc(arglen*sizeof(char));
     read(fd_req,argv,arglen*sizeof(char));
     strcat(data,argv);
-    strcat(data," ");   
+    strcat(data," ");  
+    free(argv);
+    argv=NULL; 
 
   }  
     
@@ -233,14 +235,14 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   new_task.task_id=taskid;
   new_task.ARGC=argc;
   new_task.ARGV=data;
-  //new_task.next = NULL;
-
-  //append_task(task_table,&new_task);
   
   int pos=*nbtask;
   task_table[pos]=new_task;
   (*nbtask)++;
  
+ free(time);time=NULL;
+ free(time_str);time_str=NULL;
+ free(time_struct);time_struct=NULL;
    
   deamon_write_res_create(fd_res,taskid);
 
