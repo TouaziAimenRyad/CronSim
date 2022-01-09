@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <syslog.h>
 #include <signal.h>
+#include <sys/mman.h>
 
 #include "../include/includes.h"
 #include "client-request.h"

@@ -14,6 +14,7 @@ void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
   uint32_t hr;
   uint8_t dy;
   uint32_t argc;
+  int done;
   char * argv;
   if (stat(directory,&st)==-1){
     if (mkdir(directory,0700)==-1){
@@ -33,16 +34,19 @@ void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
   for (int i = 0; i < nbtask; i++)
   {
     taskid=task_table[i].task_id;
+    done=task_table[i].done;
     argc=task_table[i].ARGC;
     argv=task_table[i].ARGV;
     min=task_table[i].time.minutes;
     hr=task_table[i].time.hours;
     dy=task_table[i].time.daysofweek;
-    uint64_t tasksize=2*sizeof(uint64_t)+2*sizeof(uint32_t)+sizeof(uint8_t)+strlen(argv);
+    uint64_t tasksize=2*sizeof(uint64_t)+2*sizeof(uint32_t)+sizeof(uint8_t)+strlen(argv)+sizeof(int);
     void *task =malloc(tasksize+sizeof(uint64_t));
     int offest=0;
     *((uint64_t *) (task+offest))=tasksize;
     offest+=sizeof(uint64_t);
+    *((int*) (task+offest))=done;
+    offest+=sizeof(int);
     *((uint64_t *) (task+offest))=taskid;
      offest+=sizeof(uint64_t);
     *((uint64_t *) (task+offest))=min;
@@ -74,6 +78,7 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
   char  filename[500];
   uint32_t nb;
   uint64_t taskid;
+  int done;
   struct timing time ;
   char* str_time=malloc(sizeof(uint64_t)+sizeof(uint8_t)+sizeof(uint32_t));
   uint64_t min;
@@ -95,32 +100,38 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
     exit(1);
   } 
 
-  read(fd,&nb,sizeof(uint32_t));
-  *nbtask=(int)nb;
-  for (int i = 0; i < nb; i++)
-  {
-    read(fd,&tasksize,sizeof(uint64_t));
-    void *task=malloc((long)tasksize);
-    read(fd,task,(long )tasksize);
-    taskid=*((uint64_t *)(task));
-    min=*((uint64_t *)(task+sizeof(uint64_t)));
-    hr=*((uint32_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)));
-    dy=*((uint8_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)));
-    argc=*((uint32_t *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)));
-    argv=((char *)(task+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)+sizeof(uint32_t)));
-    time.minutes=min;
-    time.hours=hr;
-    time.daysofweek=dy;
-    task_table[i].task_id=taskid;
-    task_table[i].time=time;
-    task_table[i].ARGC=argc;
-    task_table[i].ARGV=argv;
-    timing_string_from_timing(str_time,&time);
+  if(read(fd,&nb,sizeof(uint32_t))!=0){
     
+     *nbtask=(int)nb;
+     for (int i = 0; i < nb; i++)
+     {
+       read(fd,&tasksize,sizeof(uint64_t));
+       void *task=malloc((long)tasksize);
+       read(fd,task,(long )tasksize);
+       done=*((int *)task);
+       taskid=*((uint64_t *)(task+sizeof(int)));
+       min=*((uint64_t *)(task+sizeof(int)+sizeof(uint64_t)));
+       hr=*((uint32_t *)(task+sizeof(int)+sizeof(uint64_t)+sizeof(uint64_t)));
+       dy=*((uint8_t *)(task+sizeof(int)+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)));
+       argc=*((uint32_t *)(task+sizeof(int)+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)));
+       argv=((char *)(task+sizeof(int)+sizeof(uint64_t)+sizeof(uint64_t)+sizeof(uint32_t)+sizeof(uint8_t)+sizeof(uint32_t)));
+       time.minutes=min;
+       time.hours=hr;
+       time.daysofweek=dy;
+       task_table[i].task_id=taskid;
+       task_table[i].time=time;
+       task_table[i].ARGC=argc;
+       task_table[i].ARGV=argv;
+       timing_string_from_timing(str_time,&time);
+       
+     
+       free(task);task=NULL;
+     
+     }
 
-    free(task);task=NULL;
 
   }
+  
   free(str_time);str_time=NULL;
   close(fd);
 
@@ -331,6 +342,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   new_task.task_id=taskid;
   new_task.ARGC=argc;
   new_task.ARGV=data;
+  new_task.done=0;
   
   int pos=*nbtask;
   task_table[pos]=new_task;

@@ -9,6 +9,7 @@ struct TASK
     struct timing time;
     uint64_t task_id;
     uint32_t ARGC;
+    int done;
     
     
     
