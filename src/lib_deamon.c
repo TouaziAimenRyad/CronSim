@@ -301,11 +301,11 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   read(fd_req,time,size_timing);
   min=*((uint64_t *)time);
   hr=*((uint32_t *)(time+sizeof(uint64_t)));
-  hr=*((uint8_t *)(time+sizeof(uint64_t)+sizeof(uint32_t)));
+  dy=*((uint8_t *)(time+sizeof(uint64_t)+sizeof(uint32_t)));
   min =be64toh(min);
   hr=be32toh(hr);
- 
-
+  
+  
   time_struct->minutes=min;
   time_struct->hours=hr;
   time_struct->daysofweek=dy;

@@ -72,7 +72,6 @@ void client_req_creat_task(uint16_t opcode, char *min, char *hr, char *day, char
     uint64_t minutes = htobe64(time.minutes);
     uint32_t hours = htobe32(time.hours);
     uint8_t daysofweek = (time.daysofweek);
-
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     fd = open(myfifo, O_WRONLY);
     if (fd == -1)

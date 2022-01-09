@@ -27,16 +27,51 @@ int main(int argc, char *argv[])
  //step5 set the new file permissions that is created by deamon
  umask(077);
  //final step 8 execute the tasks ??
+
+ 
  struct TASK table_tasks_head [100] ;
  int nbtask=0;
  char *pathname_req = "./run/pipes/saturnd-request-pipe";
  char *pathname_res = "./run/pipes/saturnd-reply-pipe";
  int fd_req;
  int fd_res; 
+
  read_saved_tasks(table_tasks_head,&nbtask);
+
  uint16_t opcode=0;
  int taskid=nbtask;
- while(1){
+
+ pid_t server_pid;
+ server_pid = fork();
+ if (server_pid<0)
+ {
+     perror("error while forking the server ");
+ }
+ if(server_pid=0)
+ {
+     while (1)
+     {
+         char buff[100];
+         time_t now;   // not a primitive datatype
+         time(&now); //current time t seconds since 1jnv1970
+         struct tm now_t = *localtime(&now);
+        // strftime (buff, 100, "%d-%m-%Y %H:%M:%S", &now_t);
+         int hours=now_t.tm_hour;
+         int min=now_t.tm_min;
+         int dy=now_t.tm_wday;
+
+         for (int i = 0; i < nbtask; i++)
+         {
+             
+         }
+         
+     }
+     
+    
+ }
+ if (server_pid>0)
+ {
+   while(1){
        fd_req = open(pathname_req, O_RDONLY);
        if(fd_req==-1){
           perror("failed opening of request pipe"); 
@@ -94,9 +129,10 @@ int main(int argc, char *argv[])
          close(fd_req);
         }
   
-         
- 
+   }
  }
+ 
+ 
  
  
     
