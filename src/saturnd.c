@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
          time_t now;   // not a primitive datatype
          time(&now); //current time t seconds since 1jnv1970
          struct tm now_t = *localtime(&now);
-         
+
         // strftime (buff, 100, "%d-%m-%Y %H:%M:%S", &now_t);
          int hours=now_t.tm_hour;
          int min=now_t.tm_min;
@@ -75,8 +75,7 @@ int main(int argc, char *argv[])
            timing_string_from_field(hr_str,0,23,table_tasks_head[i].time.hours);
            timing_string_from_field(dy_str,0,6,table_tasks_head[i].time.daysofweek);
           
-           printf("%s \n",table_tasks_head[i].ARGV);
-             
+           printf("%s\n",table_tasks_head[i].ARGV);             
          }
          
      }

@@ -121,7 +121,7 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
        task_table[i].task_id=taskid;
        task_table[i].time=time;
        task_table[i].ARGC=argc;
-       task_table[i].ARGV=argv;
+       strcpy(task_table[i].ARGV,argv);
        timing_string_from_timing(str_time,&time);
        
      
@@ -341,7 +341,7 @@ void deamon_read_req_creat_task( int fd_req ,int fd_res,uint64_t taskid , struct
   new_task.time=*time_struct;
   new_task.task_id=taskid;
   new_task.ARGC=argc;
-  new_task.ARGV=data;
+  strcpy(new_task.ARGV,data);//new_task.ARGV=data;
   new_task.done=0;
   
   int pos=*nbtask;
