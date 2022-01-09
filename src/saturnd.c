@@ -28,37 +28,74 @@ int main(int argc, char *argv[])
     signal(SIGCHLD,SIG_IGN);
     signal(SIGHUP,SIG_IGN);
 
-    //step4 fork for the second time cause we dont want for session id to be same as process id
-    pid=fork();
-    if (pid<0){
-        exit(EXIT_FAILURE);
-    }
-    if (pid>0){// terminate parent 
-        printf("Parent id %d \n",getpid());
-        exit(EXIT_SUCCESS);
-    }
-
 
     //step5 set the new file permissions that is created by deamon
     umask(077);
 
-
-    //step6 change the working directory to the root directory if the curent directory is on some mounted file system so deamon process will not let the mounted file system to unmount 
-    chdir("/");
-
-
-    //step 7 close all open file discreptors 
-    for (x_fd=sys_conf(_SC_OPEN_MAX);x_fd>=0;x_fd--){
-        close(x_fd);
-    }
-
     //final step 8 execute the tasks ??
-    while (1)
-    {
-        sleep(1);
-        //execute what you execute 
-        //first thngs first we need to read the opcode and fortunatly we have a funct for that 
-    }
+    struct TASK table_tasks_head [100] ;
+    int nbtask=0;
+    char *pathname_req = "./run/pipes/saturnd-request-pipe";
+    char *pathname_res = "./run/pipes/saturnd-reply-pipe";
+    int fd_req;
+    int fd_res; 
+
+    read_saved_tasks(table_tasks_head,&nbtask);
+    uint16_t opcode=0;
+    int i=0;
+    while(i<5){
+          fd_req = open(pathname_req, O_RDONLY);
+          if(fd_req==-1)
+            {
+                
+                perror("failed opening of request pipe"); 
+                exit(EXIT_FAILURE);
+            } 
+
+          fd_res = open(pathname_res, O_WRONLY);
+          if(fd_res==-1)
+            {
+               
+                perror("failed opening of request pipe");
+                exit(EXIT_FAILURE);
+            }
+            
+
+          opcode =deamon_read_req_opcode(fd_req);
+             if(opcode==CLIENT_REQUEST_CREATE_TASK){
+            
+             deamon_read_req_creat_task(fd_req,fd_res,(uint64_t)52621,table_tasks_head,&nbtask);
+           
+             
+            close(fd_res);
+            close(fd_req);
+            i++;
+              
+             
+             }
+             if (opcode==CLIENT_REQUEST_REMOVE_TASK)
+             {
+                  deamon_read_req_remove_task(fd_req,fd_res,table_tasks_head,&nbtask);
+                
+                  
+            close(fd_res);
+            close(fd_req);
+                  
+             }
+             if(opcode==CLIENT_REQUEST_LIST_TASKS)
+             {
+             
+               deamon_write_res_list(fd_res,table_tasks_head,nbtask);
+            close(fd_res);
+            close(fd_req);
+             
+             }
+     
+            
+    
+ }
+
+ save_tasks(table_tasks_head,(uint32_t)nbtask);
     
     return 1;
 

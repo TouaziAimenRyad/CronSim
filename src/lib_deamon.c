@@ -352,7 +352,6 @@ void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_tabl
     uint64_t taskid;
     read(fd_req,&taskid,sizeof(uint64_t));
     taskid=be64toh(taskid);
-    printf(" id to remove   %lu\n",taskid);
     int i=0;
     int trouv=0;
     while (i<*nbtask && trouv==0)
