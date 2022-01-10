@@ -137,6 +137,77 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
 
 }
 
+
+int checktime(int current_time ,char* time_str)
+{  
+    int ntime [20];
+    char m[20];
+    char buff[20][20];
+    char buff2[20][20];
+    int i =0;
+    int z=0;
+    int trouv=0;
+    strcpy(m,time_str);
+    if(strcmp(m,"*")==0)
+    {
+        return 0;
+    }
+    else
+    {  
+        //break the time_str on the ,
+        char *token;
+        token = strtok(m, ",");
+        while( token != NULL ) 
+        {
+         strcpy(buff[i],token);
+         i++;
+         token = strtok(NULL, ",");
+        } 
+        
+       
+        //tranform the string table into int tabl with interperate the x-y cases
+        for(int j=0;j<i;j++)
+        {
+            if(strlen(buff[j])>2)
+            {
+               char *token2;
+               int o=0;
+               token2 = strtok(buff[j], "-");
+               while( token2 != NULL ) 
+               {
+                 strcpy(buff2[o],token2);
+                 o++;
+                 token2 = strtok(NULL, "-");
+               } 
+               int min =atoi(buff2[0]);
+               int max =atoi(buff2[1]);
+               for(int t=min;t<=max;t++){
+                   ntime[z]=t;
+                   z++;
+               }
+                
+            }
+            else
+            {
+             ntime[z]=atoi(buff[j]);
+             z++;
+            }
+                
+        }
+        
+        int u=0;
+        while((u<z)&&(trouv==0))
+        {
+            if (ntime[u]==current_time) trouv=1;
+            u++;
+        }
+         
+        return trouv;
+    }
+    
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //response functions  
 void deamon_write_res_create(int fd_res,uint64_t taskid)

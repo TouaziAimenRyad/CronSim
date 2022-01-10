@@ -6,6 +6,7 @@
 
 void save_tasks( struct TASK  *task_table ,uint32_t nbtask);
 void read_saved_tasks(struct TASK  *task_table ,int *nbtask);
+int checktime(int current_time ,char* time_str);
 
 //response headers
 void deamon_write_res_create(int fd_res,uint64_t taskid);
