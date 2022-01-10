@@ -74,10 +74,13 @@ int main(int argc, char *argv[])
            timing_string_from_field(min_str,0,59,table_tasks_head[i].time.minutes);
            timing_string_from_field(hr_str,0,23,table_tasks_head[i].time.hours);
            timing_string_from_field(dy_str,0,6,table_tasks_head[i].time.daysofweek);
-          
-           printf("%s\n",table_tasks_head[i].ARGV);             
+           if((checktime(hours,hr_str)==1)||(checktime(dy,dy_str)==1)||(checktime(min,min_str)==1))
+           {
+             printf("%s\n",table_tasks_head[i].ARGV); //here think how your gonna exeecute 
+           }
+                     
          }
-         
+         sleep(60);
      }
      
     

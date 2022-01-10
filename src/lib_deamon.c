@@ -138,6 +138,7 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
 }
 
 
+
 int checktime(int current_time ,char* time_str)
 {  
     int ntime [20];
@@ -194,7 +195,7 @@ int checktime(int current_time ,char* time_str)
             }
                 
         }
-        
+        //check if current_time exist in this function
         int u=0;
         while((u<z)&&(trouv==0))
         {
