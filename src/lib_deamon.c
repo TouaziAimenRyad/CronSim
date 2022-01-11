@@ -268,11 +268,7 @@ void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depend
        *((uint16_t *)reply)=reply_err;
        *((uint16_t *)(reply+16))=err_code;
        write(fd_res,&reply,sizeof(uint16_t));*/
-
     }
-    
-
-
 }
 
 void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
@@ -352,27 +348,50 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
     }
     
     free(argv_temp);
-    argv_temp=NULL;
-  
+    argv_temp=NULL; 
+  } 
+}
 
-    
-  }
-  
-  
-
-
- 
- 
+// Stdout :
+void demon_write_res_stdout(int fd, uint32_t reponse_code){
+// Si la réponse envoyée par le serveur est ok alors
+if (reponse_code == SERVER_REPLY_OK){
+uint16_t reponse_ok = be32toh(reponse_code);
+// On écrit dans notre fifo :
+write(fd, &reponse_ok, sizeof(uint32_t));
+}else{
+// Sinon : ( la réponse vnoyée par le serveur est erreur alors )
+uint16_t reponse_erreur = be16toh(reponse_code);
+uint16_t error_code = be16toh(reponse_code);
+void *reponse = malloc(sizeof(uint16_t));
+*((uint16_t *)reponse) = reponse_erreur;
+*((uint16_t *)(reponse + 16)) = error_code;
+write(fd, &reponse, sizeof(uint16_t));
+}
 }
 
 
+// Stderr :
+void demon_write_res_stderr(int fd, uint32_t reponse_code){
+// Si la réponse envoyée par le serveur est ok alors
+if (reponse_code == SERVER_REPLY_OK){
+uint16_t reponse_ok = be32toh(reponse_code);
+// On écrit dans notre fifo la réponse envoyée par le serveur :
+write(fd, &reponse_ok, sizeof(uint32_t));
+}else{
+// Sinon : ( la réponse envoyée est erreur ) :
+uint16_t reponse_erreur = be16toh(reponse_code);
+uint16_t error_code = be16toh(reponse_code);
+void *reponse = malloc(sizeof(uint16_t));
+*((uint16_t *)reponse) = reponse_erreur;
+*((uint16_t *)(reponse + 16)) = error_code;
+write(fd, &reponse, sizeof(uint16_t));
+}
+}
 
+//--------------------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-//request functions 
+// Request functions 
 
 uint16_t deamon_read_req_opcode( int fd_req)
 {
@@ -488,6 +507,16 @@ void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_tabl
     }
     
 
+}
+
+
+// Read stdout :
+
+void demon_read_request_stdout_task(int fd){
+uint64_t task_id;
+read(fd,&task_id,sizeof(uint64_t));
+task_id = be64toh(task_id);
+printf("%ld",task_id);
 }
 
 // Read sterr : 
