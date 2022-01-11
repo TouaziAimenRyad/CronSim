@@ -44,9 +44,7 @@ void deamon_write_res_list(int fd_res)
 {
 }
 
-
-
-// Stdout :
+/ Stdout :
 
 void demon_write_res_stdout(int fd, uint32_t reponse_code)
 {
@@ -180,6 +178,7 @@ void demon_read_request_stdout_task(int fd){
 }
 
 // Read sterr : 
+
 void demon_read_request_stderr_task(int fd){
   uint64_t task_id;
   read(fd,&task_id,sizeof(uint64_t));
