@@ -220,7 +220,7 @@ void execute_task(char * argv){
   token = strtok(buff, " ");
   while( token != NULL ) 
   {
-    cmd[i]=malloc(10);
+    cmd[i]=malloc(50);
     strcpy(cmd[i],token);
     i++;
     token = strtok(NULL, " ");
