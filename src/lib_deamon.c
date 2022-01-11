@@ -209,6 +209,28 @@ int checktime(int current_time ,char* time_str)
 }
 
 
+void execute_task(char * argv){
+  char cmd[20][50];
+  char argv2[20][50];
+  char buff[80];
+  int i=0;
+  strcpy(buff,argv);
+  char *token;
+  token = strtok(buff, " ");
+  while( token != NULL ) 
+  {
+    strcpy(cmd[i],token);
+    i++;
+    token = strtok(NULL, ",");
+  }
+  for (int j = 0; j < i; j++)
+  {
+    strcpy(argv2[j],cmd[j+1]);
+  }
+ 
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //response functions  
 void deamon_write_res_create(int fd_res,uint64_t taskid)

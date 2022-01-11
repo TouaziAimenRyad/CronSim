@@ -51,36 +51,43 @@ int main(int argc, char *argv[])
  if(server_pid==0)
  {
      int fd =open("/home/don/test.txt",O_RDONLY | O_CREAT,0700);
-      printf("child\n");
+     int status;
      while (1)
      {
          
          char buff[100];
-         time_t now;   // not a primitive datatype
+         time_t now;   
          time(&now); //current time t seconds since 1jnv1970
          struct tm now_t = *localtime(&now);
 
-        // strftime (buff, 100, "%d-%m-%Y %H:%M:%S", &now_t);
+        
          int hours=now_t.tm_hour;
          int min=now_t.tm_min;
          int dy=now_t.tm_wday;
-         printf("%d\n",*nbtask);
-         //dup2(1,fd);
+         
          for (int i = 0; i < *nbtask; i++)
          {
            char  min_str[50];
            char  hr_str[50];
            char  dy_str[50];
+           char cmd[100];
+           strcpy(cmd,table_tasks_head[i].ARGV);
            timing_string_from_field(min_str,0,59,table_tasks_head[i].time.minutes);
            timing_string_from_field(hr_str,0,23,table_tasks_head[i].time.hours);
            timing_string_from_field(dy_str,0,6,table_tasks_head[i].time.daysofweek);
-           if((checktime(hours,hr_str)==1)||(checktime(dy,dy_str)==1)||(checktime(min,min_str)==1))
+           if((checktime(hours,hr_str)==1)||(checktime(dy,dy_str)==1)||(checktime(min,min_str)==1)&&(table_tasks_head[i].done==0))
            {
-             printf("%s\n",table_tasks_head[i].ARGV); //here think how your gonna exeecute 
+            table_tasks_head[i].done=1;
+            if(fork()==0)
+            {
+              execute_task(cmd); 
+            }
+            //wait(NULL);
+            
            }
-                     
+           
          }
-         sleep(60);
+        sleep(60);
      }
      
     
