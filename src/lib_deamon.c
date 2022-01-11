@@ -39,6 +39,9 @@ void deamon_write_res_remove(int fd_res,uint16_t reply_code) //reply code depend
 }
 
 void deamon_write_res_list(int fd_res)
+/ Stdout :
+
+void demon_write_res_stdout(int fd, uint32_t reponse_code)
 {
 
 }
@@ -121,4 +124,12 @@ void deamon_read_req_remove_task(int fd_req)
     //after we are done reading we execute what needs to be executed from the server 
     //after that we send the response by calling for funct that handle 
 
+
+// Read sterr : 
+
+void demon_read_request_stderr_task(int fd){
+  uint64_t task_id;
+  read(fd,&task_id,sizeof(uint64_t));
+  task_id = be64toh(task_id);
+  printf("%ld",task_id);
 }
