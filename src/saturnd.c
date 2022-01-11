@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
  }
  if(server_pid==0)
  {
-     int fd =open("/home/don/test.txt",O_RDONLY | O_CREAT,0700);
      int status;
      while (1)
      {
@@ -82,12 +81,11 @@ int main(int argc, char *argv[])
             {
               execute_task(cmd); 
             }
-            //wait(NULL);
             
            }
            
          }
-        sleep(60);
+        sleep(05);
      }
      
     
