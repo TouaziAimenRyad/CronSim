@@ -41,13 +41,9 @@ void deamon_read_req_creat_task(int fd_req,int fd_res,uint64_t taskid , struct T
 
 void deamon_read_req_remove_task(int fd_req,int fd_res, struct TASK  *task_table,int* nbtask);
 
-<<<<<<< HEAD
-void demon_read_request_stderr_task(int fd);
-=======
 void demon_read_request_stdout_task(int fd_req,int fd_res);
 
 void demon_read_request_stderr_task(int fd_req,int fd_res);
->>>>>>> functionstdoutstderr
 
 void demon_read_request_time_and_exitcodes(int fd_req,int fd_res);
 

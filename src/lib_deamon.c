@@ -210,8 +210,7 @@ int checktime(int current_time ,char* time_str)
 
 
 void execute_task(char * argv){
-  char cmd[20][50];
-  char argv2[20][50];
+  char *cmd[10];
   char buff[80];
   int i=0;
   strcpy(buff,argv);
@@ -219,14 +218,14 @@ void execute_task(char * argv){
   token = strtok(buff, " ");
   while( token != NULL ) 
   {
+    cmd[i]=malloc(10);
     strcpy(cmd[i],token);
     i++;
-    token = strtok(NULL, ",");
+    token = strtok(NULL, " ");
   }
-  for (int j = 0; j < i; j++)
-  {
-    strcpy(argv2[j],cmd[j+1]);
-  }
+  cmd[i]=NULL;
+ 
+  execvp(cmd[0],cmd);
  
 }
 
@@ -364,7 +363,7 @@ void demon_write_res_stdout(int fd_res, uint16_t reponse_code, uint32_t output, 
 // Si la réponse envoyée par le serveur est ok alors :
 if (reponse_code == SERVER_REPLY_OK){
 uint16_t reponse_ok = htobe32(reponse_code);
-unit32_t outoupt2 = htobe32(output);
+uint32_t outoupt2 = htobe32(output);
 // On écrit dans notre fifo :
 write(fd_res, &reponse_ok, sizeof(uint16_t));
 write(fd_res, &outoupt2, sizeof(uint32_t));
@@ -388,7 +387,7 @@ void demon_write_res_stderr(int fd_res, uint16_t reponse_code, uint32_t output, 
 // Si la réponse envoyée par le serveur est ok alors :
 if (reponse_code == SERVER_REPLY_OK){
 uint16_t reponse_ok = htobe32(reponse_code);
-unit32_t outoupt2 = htobe32(output);
+uint32_t outoupt2 = htobe32(output);
 // On écrit dans notre fifo :
 write(fd_res, &reponse_ok, sizeof(uint16_t));
 write(fd_res, &outoupt2, sizeof(uint32_t));
