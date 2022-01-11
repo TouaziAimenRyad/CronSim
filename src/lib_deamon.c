@@ -210,8 +210,7 @@ int checktime(int current_time ,char* time_str)
 
 
 void execute_task(char * argv){
-  char cmd[20][50];
-  char argv2[20][50];
+  char *cmd[10];
   char buff[80];
   int i=0;
   strcpy(buff,argv);
@@ -219,14 +218,14 @@ void execute_task(char * argv){
   token = strtok(buff, " ");
   while( token != NULL ) 
   {
+    cmd[i]=malloc(10);
     strcpy(cmd[i],token);
     i++;
-    token = strtok(NULL, ",");
+    token = strtok(NULL, " ");
   }
-  for (int j = 0; j < i; j++)
-  {
-    strcpy(argv2[j],cmd[j+1]);
-  }
+  cmd[i]=NULL;
+ 
+  execvp(cmd[0],cmd);
  
 }
 

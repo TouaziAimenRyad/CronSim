@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
            }
            
          }
-        sleep(60);
+        sleep(05);
      }
      
     
