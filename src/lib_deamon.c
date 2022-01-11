@@ -3,7 +3,7 @@
 
 
 //aux functions
-//we need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
+// We need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
 void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
   struct stat st ;
   char * directory="/home/don/DataStore";
@@ -231,8 +231,9 @@ void execute_task(char * argv){
 }
 
 
-//----------------------------------------------------------------------------------------------------------------------------------------------
-//response functions  
+//------------------------------------------------------------------------------------
+// Response functions :
+
 void deamon_write_res_create(int fd_res,uint64_t taskid)
 {
     uint16_t reply_code=be16toh(SERVER_REPLY_OK);
@@ -352,40 +353,54 @@ void deamon_write_res_list(int fd_res ,struct TASK  *task_table,uint32_t nbtask)
   } 
 }
 
+// Les valeurs possibles pour ERRCODE sont :
+//  - 0x4e46 ('NF') : il n'existe aucune tâche avec cet identifiant
+//  - 0x4e52 ('NR') : la tâche n'a pas encore été exécutée au moins une fois
+
 // Stdout :
-void demon_write_res_stdout(int fd, uint32_t reponse_code){
-// Si la réponse envoyée par le serveur est ok alors
+
+
+void demon_write_res_stdout(int fd_res, uint16_t reponse_code, uint32_t output, uint16_t erreur_code){
+// Si la réponse envoyée par le serveur est ok alors :
 if (reponse_code == SERVER_REPLY_OK){
-uint16_t reponse_ok = be32toh(reponse_code);
+uint16_t reponse_ok = htobe32(reponse_code);
+unit32_t outoupt2 = htobe32(output);
 // On écrit dans notre fifo :
-write(fd, &reponse_ok, sizeof(uint32_t));
+write(fd_res, &reponse_ok, sizeof(uint16_t));
+write(fd_res, &outoupt2, sizeof(uint32_t));
+
 }else{
-// Sinon : ( la réponse vnoyée par le serveur est erreur alors )
-uint16_t reponse_erreur = be16toh(reponse_code);
-uint16_t error_code = be16toh(reponse_code);
+// Sinon : ( la réponse envoyée par le serveur est erreur alors ) :
+uint16_t reponse_erreur = htobe16(0x4552);
+uint16_t error_code = htobe16(reponse_code);
 void *reponse = malloc(sizeof(uint16_t));
 *((uint16_t *)reponse) = reponse_erreur;
 *((uint16_t *)(reponse + 16)) = error_code;
-write(fd, &reponse, sizeof(uint16_t));
+write(fd_res, &reponse, 2*sizeof(uint16_t));
 }
 }
 
 
 // Stderr :
-void demon_write_res_stderr(int fd, uint32_t reponse_code){
-// Si la réponse envoyée par le serveur est ok alors
+
+
+void demon_write_res_stderr(int fd_res, uint16_t reponse_code, uint32_t output, uint16_t erreur_code){
+// Si la réponse envoyée par le serveur est ok alors :
 if (reponse_code == SERVER_REPLY_OK){
-uint16_t reponse_ok = be32toh(reponse_code);
-// On écrit dans notre fifo la réponse envoyée par le serveur :
-write(fd, &reponse_ok, sizeof(uint32_t));
+uint16_t reponse_ok = htobe32(reponse_code);
+unit32_t outoupt2 = htobe32(output);
+// On écrit dans notre fifo :
+write(fd_res, &reponse_ok, sizeof(uint16_t));
+write(fd_res, &outoupt2, sizeof(uint32_t));
+
 }else{
-// Sinon : ( la réponse envoyée est erreur ) :
-uint16_t reponse_erreur = be16toh(reponse_code);
-uint16_t error_code = be16toh(reponse_code);
+// Sinon : ( la réponse envoyée par le serveur est erreur alors ) :
+uint16_t reponse_erreur = htobe16(0x4552);
+uint16_t error_code = htobe16(reponse_code);
 void *reponse = malloc(sizeof(uint16_t));
 *((uint16_t *)reponse) = reponse_erreur;
 *((uint16_t *)(reponse + 16)) = error_code;
-write(fd, &reponse, sizeof(uint16_t));
+write(fd_res, &reponse, 2*sizeof(uint16_t));
 }
 }
 //terminate 
@@ -550,20 +565,25 @@ void deamon_read_req_remove_task(int fd_req ,int fd_res, struct TASK  *task_tabl
 
 // Read stdout :
 
-void demon_read_request_stdout_task(int fd){
+void demon_read_request_stdout_task(int fd_req,int fd_res){
 uint64_t task_id;
-read(fd,&task_id,sizeof(uint64_t));
+read(fd_req,&task_id,sizeof(uint64_t));
 task_id = be64toh(task_id);
 printf("%ld",task_id);
+
+demon_write_res_stdout(fd_res,0x4f4b,11,0x4552);
+
 }
 
 // Read sterr : 
 
-void demon_read_request_stderr_task(int fd){
-  uint64_t task_id;
-  read(fd,&task_id,sizeof(uint64_t));
-  task_id = be64toh(task_id);
-  printf("%ld",task_id);
+void demon_read_request_stderr_task(int fd_req,int fd_res){
+uint64_t task_id;
+read(fd_req,&task_id,sizeof(uint64_t));
+task_id = be64toh(task_id);
+printf("%ld",task_id);
+
+demon_write_res_stderr(fd_res,0x4f4b,11,0x4552);
 }
 //Read times_and_exitcodes
 void demon_read_request_time_and_exitcodes(int fd_req,int fd_res){
