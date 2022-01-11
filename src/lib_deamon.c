@@ -89,8 +89,10 @@ void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
   long tasksize;
 
   if (stat(directory,&st)==-1){
-      perror("couldn't find data store ");
+      if (mkdir(directory,0700)==-1){
+      perror("couldn't creat data store ");
       exit(1);
+    }
   }
   sprintf(filename,"%s/%s",directory,"TASK_STORE");
   int fd=open(filename,O_RDONLY | O_APPEND | O_CREAT,0700);
