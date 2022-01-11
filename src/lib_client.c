@@ -388,6 +388,7 @@ void client_get_reply_stdout()
         free(output);
         exit(0);
     }
+
     /* Fermeture du descripteur : */
     close(fd);
 }
@@ -418,6 +419,7 @@ void client_get_reply_stderr()
     /* Si la lecture échoute ( fichier inexistant ou autre ) :  */
     if (fd == -1)
     {
+
         /* Affiche une erreur  : */
         perror("erreur");
 
@@ -451,6 +453,7 @@ void client_get_reply_stderr()
         free(output);
         exit(0);
     }
+
     // Fermeture du descripteur :
     close(fd);
 }
@@ -489,7 +492,8 @@ void client_get_res_create(){
         exit(0);
     }
     // Fermeture du descripteur :
-    close(fd_res);   
+    close(fd_res);
+    
 }
 
 /**
@@ -519,13 +523,17 @@ void client_get_res_remove(){
     // Fermeture du descripteur :
     close(fd_res);
 
+   
     if (restype==be16toh(SERVER_REPLY_ERROR))
     {
         read(fd_res,&error,sizeof(uint16_t));
         error=be16toh(error);
         printf("%x",error);
         exit(0);
-    }  
+    }
+    
+   
+    
 }
 
 /**
@@ -550,8 +558,11 @@ void client_get_res_list(){
   
   int fd_res = open(pathname_res, O_RDONLY);
    if(fd_res==-1)
-    { 
+    {
+       
         perror("failed opening of request pipe");
+
+       
         exit(EXIT_FAILURE);
     }
 
@@ -584,20 +595,31 @@ void client_get_res_list(){
                    char * argv=malloc(arglen*sizeof(uint8_t));
                    read(fd_res,argv,arglen*sizeof(uint8_t));
                    strcat(task_str," ");
-                   strcat(task_str,argv);                  
+                   strcat(task_str,argv);
+                   
+                   
                 }
-                printf("%s\n",task_str);
-            }     
-        }
-    }  
-    close(fd_res);
-    exit(0);  
-}
 
+                printf("%s\n",task_str);
+
+            }
+            
+        }
+        
+
+
+    }
+    
+   
+    
+    close(fd_res);
+    exit(0);
+    
+}
 /**
  * Cette fonction traite la réponse du serveur à la requete terminate :
-*/
-
+ *
+ */
 void client_get_res_terminate(){
     /* On récupère la réponse du fichier saturnd-reply-pipe */
     char *pathname_res = "./run/pipes/saturnd-reply-pipe";
@@ -677,7 +699,8 @@ void client_get_res_time_and_exitcodes()
                  timeInfo->tm_year + 1900, timeInfo->tm_mon + 1,
                  timeInfo->tm_mday, timeInfo->tm_hour, timeInfo->tm_min,
                  timeInfo->tm_sec, exitcode);
-     
+
+          
         }
       }
       else if(*((uint16_t *)reptype) == be16toh(SERVER_REPLY_ERROR))
@@ -687,9 +710,10 @@ void client_get_res_time_and_exitcodes()
         {
           printf("%u", errcode);
           exit(1);
-        }else{
-          exit(1);
         }
+        else
+          exit(1);
+      }
        // Fermeture du descripteur :
        close(fd_res);
 
