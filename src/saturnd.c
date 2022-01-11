@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
         {
          //req func here or res here 
          save_tasks(table_tasks_head,(uint32_t)*nbtask);
+         munmap(table_tasks_head, 100*sizeof(struct TASK));
+         munmap(nbtask, sizeof(int));
          deamon_write_res_terminate(fd_req,fd_res,getpid(),server_pid);
          //save other structures for other files 
          //kill the server_pid process and the getpid
