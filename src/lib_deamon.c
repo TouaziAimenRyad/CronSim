@@ -388,11 +388,44 @@ void *reponse = malloc(sizeof(uint16_t));
 write(fd, &reponse, sizeof(uint16_t));
 }
 }
-void deamon_write_res_terminate(int fd_res){ //le reply code est toujours ok
+//terminate 
+
+void deamon_write_res_terminate(int fd_req,int fd_res,int pid1,int pid2){ //le reply code est toujours ok
 
        uint16_t reply_ok=htobe16(SERVER_REPLY_OK);
        write(fd_res,&reply_ok,sizeof(uint16_t));
+       close(fd_res);
+       close(fd_req);
+       kill(pid2,SIGKILL);
+       kill(pid1,SIGKILL);
+
 }
+//time_and_exitcodes
+
+void deamon_write_res_time_ans_exitcodes(int fd_res, uint16_t reply_code, uint32_t nb_run, int64_t time,uint16_t exitcode){
+
+  if (reply_code == SERVER_REPLY_OK)
+  {
+
+    reply_code = htobe16(reply_code);
+    nb_run=htobe32(nb_run);
+    time=htobe16(time);
+    exitcode=htobe16(exitcode);
+    void *reply = malloc(sizeof(uint16_t)+sizeof(uint32_t)+sizeof(int64_t)+sizeof(uint16_t));
+     *((uint16_t *)reply) = reply_code;
+     *((uint32_t *)(reply + 32)) = nb_run;
+     *((int64_t *)(reply + 32+64)) =time;
+     *((uint16_t *)(reply +32+64+ 16)) = exitcode;
+     write(fd_res, &reply,sizeof(uint16_t)+sizeof(uint32_t)+sizeof(int64_t)+sizeof(uint16_t) );
+    
+    }
+  else
+  {
+    uint16_t reply_err = htobe16(0x4e46);
+    write(fd_res, &reply_err, sizeof(uint16_t));
+  }
+}
+
 
 //--------------------------------------------------------------------------------------------
 
@@ -532,5 +565,14 @@ void demon_read_request_stderr_task(int fd){
   task_id = be64toh(task_id);
   printf("%ld",task_id);
 }
+//Read times_and_exitcodes
+void demon_read_request_time_and_exitcodes(int fd_req,int fd_res){
+  uint64_t task_id;
+  read(fd_req,&task_id,sizeof(uint64_t));
+  task_id = be64toh(task_id);
+  //en attendant l'execution
+  deamon_write_res_time_ans_exitcodes(fd_res,0,0,0,0);
+}
+
 //terminate récupere que l'opcode et on a deja une fonction qui lit l'opcode donc pas besoin
 

@@ -148,10 +148,10 @@ int main(int argc, char *argv[])
         {
          //req func here or res here 
          save_tasks(table_tasks_head,(uint32_t)*nbtask);
+         deamon_write_res_terminate(fd_req,fd_res,getpid(),server_pid);
          //save other structures for other files 
          //kill the server_pid process and the getpid
-         close(fd_res);
-         close(fd_req);
+        
         }
         kill(server_pid,SIGCONT);
   
