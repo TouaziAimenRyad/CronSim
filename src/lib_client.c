@@ -36,7 +36,7 @@ void client_request_list_tasks(uint16_t opcode)
     }
 
     /* On écrit notre content dans notre fichier :  */
-    write(fd, &opcode2, sizeof(opcode2));
+    write(fd, &opcode2, sizeof(uint16_t));
 
     /* On ferme nle descripteur */
     close(fd);
@@ -72,7 +72,6 @@ void client_req_creat_task(uint16_t opcode, char *min, char *hr, char *day, char
     uint64_t minutes = htobe64(time.minutes);
     uint32_t hours = htobe32(time.hours);
     uint8_t daysofweek = (time.daysofweek);
-
     char *myfifo = "./run/pipes/saturnd-request-pipe";
     fd = open(myfifo, O_WRONLY);
     if (fd == -1)
@@ -519,19 +518,23 @@ void client_get_res_remove(){
     }
     /* On va lire notre fichier en respectant le protocole : */
     read(fd_res,&restype,sizeof(uint16_t));
+    
 
-    // Fermeture du descripteur :
-    close(fd_res);
-
-   
     if (restype==be16toh(SERVER_REPLY_ERROR))
     {
         read(fd_res,&error,sizeof(uint16_t));
         error=be16toh(error);
-        printf("%x",error);
+        write(1,&error,sizeof(uint16_t));
+        printf("\n");
         exit(0);
     }
-    
+    else
+    {
+        write(1,&restype,sizeof(uint16_t));
+        printf("\n");
+    }
+    // Fermeture du descripteur :
+    close(fd_res);
    
     
 }
@@ -567,6 +570,8 @@ void client_get_res_list(){
     }
 
     read(fd_res,&reptype,sizeof(uint16_t));
+    write(1,&reptype,sizeof(uint16_t));
+    printf("\n");
     if (reptype==be16toh(SERVER_REPLY_OK))
     {
         read(fd_res,&nbtask,sizeof(uint32_t));
@@ -596,7 +601,8 @@ void client_get_res_list(){
                    read(fd_res,argv,arglen*sizeof(uint8_t));
                    strcat(task_str," ");
                    strcat(task_str,argv);
-                   
+                   free(argv);
+                   argv=NULL;
                    
                 }
 
@@ -610,7 +616,12 @@ void client_get_res_list(){
 
     }
     
-   
+    free(time_str);
+    time_str=NULL;
+    free(time);
+    time=NULL;
+    free(task_str);
+    task_str=NULL;
     
     close(fd_res);
     exit(0);

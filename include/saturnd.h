@@ -7,15 +7,15 @@
 #include <errno.h>
 #include <syslog.h>
 #include <signal.h>
+#include <sys/mman.h>
 
 #include "../include/includes.h"
 #include "client-request.h"
 #include "server-reply.h"
-#include "command.h"
 #include "timing.h"
 #include "timing-text-io.h"
 #include "task.h"
 #include "../src/timing-text-io.c"
-#include "../src/command.c"
+#include "../src/task.c"
 #endif 
 
