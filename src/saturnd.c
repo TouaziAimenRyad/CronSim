@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
          int hours=now_t.tm_hour;
          int min=now_t.tm_min;
          int dy=now_t.tm_wday;
+         int second=now_t.tm_sec;
          
          for (int i = 0; i < *nbtask; i++)
          {
@@ -74,7 +75,8 @@ int main(int argc, char *argv[])
            timing_string_from_field(min_str,0,59,table_tasks_head[i].time.minutes);
            timing_string_from_field(hr_str,0,23,table_tasks_head[i].time.hours);
            timing_string_from_field(dy_str,0,6,table_tasks_head[i].time.daysofweek);
-           if((checktime(hours,hr_str)==1)||(checktime(dy,dy_str)==1)||(checktime(min,min_str)==1)&&(table_tasks_head[i].done==0))
+           //we used done to execute only one time for the sake of testing because we didin't finish nb run and time exit code
+           if((checktime(hours,hr_str)==1)||(checktime(dy,dy_str)==1)||(checktime(min,min_str)==1)/*&&(table_tasks_head[i].done==0)*/)
            {
             table_tasks_head[i].done=1;
             if(fork()==0)
@@ -85,7 +87,7 @@ int main(int argc, char *argv[])
            }
            
          }
-        sleep(05);
+        sleep(60-second);
      }
      
     
