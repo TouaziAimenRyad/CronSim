@@ -6,7 +6,7 @@
 // We need a function that reads from the tasks storage and return a table of task structure and another one to do the oposit 
 void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
   struct stat st ;
-  char * directory="/home/DataStore";
+  char * directory="/home/don/DataStore";
   char  filename[500];
   
   uint64_t taskid;
@@ -74,7 +74,7 @@ void save_tasks( struct TASK  *task_table ,uint32_t nbtask){
 void read_saved_tasks(struct TASK  *task_table ,int *nbtask)
 {
   struct stat st ;
-  char * directory="/home/DataStore";
+  char * directory="/home/don/DataStore";
   char  filename[500];
   uint32_t nb;
   uint64_t taskid;
