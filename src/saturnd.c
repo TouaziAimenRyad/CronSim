@@ -83,12 +83,15 @@ int main(int argc, char *argv[])
             {
               execute_task(cmd); 
             }
-            
+            wait(&status);
+          
            }
+          
            
          }
         sleep(60-second);
      }
+     close(fd);
      
     
  }
