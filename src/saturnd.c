@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
          }
         sleep(60-second);
      }
-     close(fd);
+    
      
     
  }
